@@ -1,0 +1,14 @@
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/mtscnc.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/edit_cache.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/rebuild_cache.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/list_install_components.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/install.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/install/local.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/CMakeFiles/install/strip.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/simdjson.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/edit_cache.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/rebuild_cache.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/list_install_components.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/install.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/install/local.dir
+/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/install/strip.dir

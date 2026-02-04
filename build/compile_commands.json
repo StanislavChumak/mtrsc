@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/stas/prog/c++/projectC++/mtscnc/build",
+  "command": "/usr/bin/g++ -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1 -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include -g -std=gnu++17 -o CMakeFiles/mtscnc.dir/src/main.cpp.o -c /home/stas/prog/c++/projectC++/mtscnc/src/main.cpp",
+  "file": "/home/stas/prog/c++/projectC++/mtscnc/src/main.cpp",
+  "output": "CMakeFiles/mtscnc.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/stas/prog/c++/projectC++/mtscnc/build",
+  "command": "/usr/bin/g++ -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1 -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include -g -std=gnu++17 -o CMakeFiles/mtscnc.dir/src/jsonUtils.cpp.o -c /home/stas/prog/c++/projectC++/mtscnc/src/jsonUtils.cpp",
+  "file": "/home/stas/prog/c++/projectC++/mtscnc/src/jsonUtils.cpp",
+  "output": "CMakeFiles/mtscnc.dir/src/jsonUtils.cpp.o"
+},
+{
+  "directory": "/home/stas/prog/c++/projectC++/mtscnc/build",
+  "command": "/usr/bin/g++ -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1 -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include -g -std=gnu++17 -o CMakeFiles/mtscnc.dir/src/hash.cpp.o -c /home/stas/prog/c++/projectC++/mtscnc/src/hash.cpp",
+  "file": "/home/stas/prog/c++/projectC++/mtscnc/src/hash.cpp",
+  "output": "CMakeFiles/mtscnc.dir/src/hash.cpp.o"
+},
+{
+  "directory": "/home/stas/prog/c++/projectC++/mtscnc/build",
+  "command": "/usr/bin/g++ -DSIMDJSON_AVX512_ALLOWED=1 -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1 -DSIMDJSON_UTF8VALIDATION=1 -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/src -g -std=c++17 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store -Og -Winvalid-pch -x c++-header -include /home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx -o external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx.gch -c /home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx.cxx",
+  "file": "/home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx.cxx",
+  "output": "external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx.gch"
+},
+{
+  "directory": "/home/stas/prog/c++/projectC++/mtscnc/build",
+  "command": "/usr/bin/g++ -DSIMDJSON_AVX512_ALLOWED=1 -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1 -DSIMDJSON_UTF8VALIDATION=1 -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/src -g -std=c++17 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store -Og -Winvalid-pch -include /home/stas/prog/c++/projectC++/mtscnc/build/external/simdjson/CMakeFiles/simdjson.dir/cmake_pch.hxx -o external/simdjson/CMakeFiles/simdjson.dir/src/simdjson.cpp.o -c /home/stas/prog/c++/projectC++/mtscnc/external/simdjson/src/simdjson.cpp",
+  "file": "/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/src/simdjson.cpp",
+  "output": "external/simdjson/CMakeFiles/simdjson.dir/src/simdjson.cpp.o"
+}
+]
