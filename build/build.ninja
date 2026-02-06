@@ -57,21 +57,45 @@ build CMakeFiles/mtscnc.dir/src/main.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug
   OBJECT_DIR = CMakeFiles/mtscnc.dir
   OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src
 
-build CMakeFiles/mtscnc.dir/src/jsonUtils.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/jsonUtils.cpp || cmake_object_order_depends_target_mtscnc
+build CMakeFiles/mtscnc.dir/src/utilities/jsonUtils.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/utilities/jsonUtils.cpp || cmake_object_order_depends_target_mtscnc
   DEFINES = -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1
-  DEP_FILE = CMakeFiles/mtscnc.dir/src/jsonUtils.cpp.o.d
+  DEP_FILE = CMakeFiles/mtscnc.dir/src/utilities/jsonUtils.cpp.o.d
   FLAGS = -g -std=gnu++17
   INCLUDES = -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include
   OBJECT_DIR = CMakeFiles/mtscnc.dir
-  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src
+  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src/utilities
 
-build CMakeFiles/mtscnc.dir/src/hash.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/hash.cpp || cmake_object_order_depends_target_mtscnc
+build CMakeFiles/mtscnc.dir/src/utilities/hash.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/utilities/hash.cpp || cmake_object_order_depends_target_mtscnc
   DEFINES = -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1
-  DEP_FILE = CMakeFiles/mtscnc.dir/src/hash.cpp.o.d
+  DEP_FILE = CMakeFiles/mtscnc.dir/src/utilities/hash.cpp.o.d
   FLAGS = -g -std=gnu++17
   INCLUDES = -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include
   OBJECT_DIR = CMakeFiles/mtscnc.dir
-  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src
+  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src/utilities
+
+build CMakeFiles/mtscnc.dir/src/structures/Entity.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/structures/Entity.cpp || cmake_object_order_depends_target_mtscnc
+  DEFINES = -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1
+  DEP_FILE = CMakeFiles/mtscnc.dir/src/structures/Entity.cpp.o.d
+  FLAGS = -g -std=gnu++17
+  INCLUDES = -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include
+  OBJECT_DIR = CMakeFiles/mtscnc.dir
+  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src/structures
+
+build CMakeFiles/mtscnc.dir/src/structures/Component.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/structures/Component.cpp || cmake_object_order_depends_target_mtscnc
+  DEFINES = -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1
+  DEP_FILE = CMakeFiles/mtscnc.dir/src/structures/Component.cpp.o.d
+  FLAGS = -g -std=gnu++17
+  INCLUDES = -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include
+  OBJECT_DIR = CMakeFiles/mtscnc.dir
+  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src/structures
+
+build CMakeFiles/mtscnc.dir/src/structures/Scene.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug /home/stas/prog/c++/projectC++/mtscnc/src/structures/Scene.cpp || cmake_object_order_depends_target_mtscnc
+  DEFINES = -DSIMDJSON_DEVELOPMENT_CHECKS -DSIMDJSON_THREADS_ENABLED=1
+  DEP_FILE = CMakeFiles/mtscnc.dir/src/structures/Scene.cpp.o.d
+  FLAGS = -g -std=gnu++17
+  INCLUDES = -I/home/stas/prog/c++/projectC++/mtscnc/include -I/home/stas/prog/c++/projectC++/mtscnc/external/simdjson/include
+  OBJECT_DIR = CMakeFiles/mtscnc.dir
+  OBJECT_FILE_DIR = CMakeFiles/mtscnc.dir/src/structures
 
 
 # =============================================================================
@@ -81,7 +105,7 @@ build CMakeFiles/mtscnc.dir/src/hash.cpp.o: CXX_COMPILER__mtscnc_unscanned_Debug
 #############################################
 # Link the executable mtscnc
 
-build mtscnc: CXX_EXECUTABLE_LINKER__mtscnc_Debug CMakeFiles/mtscnc.dir/src/main.cpp.o CMakeFiles/mtscnc.dir/src/jsonUtils.cpp.o CMakeFiles/mtscnc.dir/src/hash.cpp.o | external/simdjson/libsimdjson.a || external/simdjson/libsimdjson.a
+build mtscnc: CXX_EXECUTABLE_LINKER__mtscnc_Debug CMakeFiles/mtscnc.dir/src/main.cpp.o CMakeFiles/mtscnc.dir/src/utilities/jsonUtils.cpp.o CMakeFiles/mtscnc.dir/src/utilities/hash.cpp.o CMakeFiles/mtscnc.dir/src/structures/Entity.cpp.o CMakeFiles/mtscnc.dir/src/structures/Component.cpp.o CMakeFiles/mtscnc.dir/src/structures/Scene.cpp.o | external/simdjson/libsimdjson.a || external/simdjson/libsimdjson.a
   DEP_FILE = CMakeFiles/mtscnc.dir/link.d
   FLAGS = -g
   LINK_FLAGS = -Wl,--dependency-file=CMakeFiles/mtscnc.dir/link.d
