@@ -10,8 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME}
 src/main.cpp
+
 src/jsonUtils.cpp
 src/hash.cpp
+
+src/Entity.cpp
+src/Component.cpp
+src/Scene.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

@@ -12,13 +12,6 @@ uint64_t fnv1a_64(const void* data, size_t size, uint64_t hash = FNV_OFFSET_BASI
 
 uint64_t hash_string(const std::string& s, uint64_t seed = FNV_OFFSET_BASIS);
 
-uint64_t make_scene_entity_id(
-    const std::string& scenePath,
-    const std::string& entityName,
-    uint32_t entityIndex);
-
-uint64_t make_scene_id(
-    const std::string& scenePath,
-    const std::string& sceneName);
+uint64_t make_scene_entity_id(const std::string& scenePath, const std::string& entityName);
 
 #endif
