@@ -1,11 +1,12 @@
-#include "structures/Component.h"
+#include "structure/Component.h"
 
 #include "utilities/hash.h"
 #include "utilities/jsonUtils.h"
 
 #include <cstdlib>
+#include <utility>
 
-bool Component::from_json(std::string name, simdjson::ondemand::object obj)
+bool Component::from_json(std::string name, std::vector<DynamicDataBuffer> &bufferDynamicDate, simdjson::ondemand::object obj)
 {
     switch (hash_c_string(name.c_str()))
     {
@@ -41,6 +42,21 @@ bool Component::from_json(std::string name, simdjson::ondemand::object obj)
     }
     case hash_c_string("Animator"):
     {
+        struct Animator
+        {
+            uint32_t offsetFrameDuration;
+        };
+        size = sizeof(Animator);
+        date = malloc(size);
+        Animator *comp = static_cast<Animator*>(date);
+        std::vector<float> buffer;
+        for(auto frameDuration : get_var_json<simdjson::ondemand::array>(obj["durations"]))
+            buffer.push_back(get_var_json<double>(frameDuration.value()));
+        DynamicDataBuffer dynamicDate = {
+            &comp->offsetFrameDuration,
+            sizeof(float) * buffer.size(),
+            reinterpret_cast<char*>(buffer.data())};
+        bufferDynamicDate.push_back(std::move(dynamicDate));
         break;
     }
     case hash_c_string("StateAnimator"):

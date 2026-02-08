@@ -1,4 +1,4 @@
-#include "structures/Entity.h"
+#include "structure/Entity.h"
 
 #include "utilities/jsonUtils.h"
 
@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-bool Entity::from_json(std::string patchJson, simdjson::ondemand::object obj)
+bool Entity::from_json(std::string patchJson, std::vector<DynamicDataBuffer> &dynamicDataBuffer, simdjson::ondemand::object obj)
 {
     std::string name = "";
     for(auto field : obj)
@@ -19,10 +19,11 @@ bool Entity::from_json(std::string patchJson, simdjson::ondemand::object obj)
             continue;
         }
         Component component{};
-        if(component.from_json(key, get_var_json<simdjson::ondemand::object>(field.value())))
+        if(component.from_json(key, dynamicDataBuffer, get_var_json<simdjson::ondemand::object>(field.value())))
         {
             size += component.size;
             components.push_back(std::move(component));
+            auto hash = hash_string(key);
         }
         else
         {

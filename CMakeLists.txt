@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13.0 FATAL_ERROR)
 
-set(PROJECT_NAME mtscnc)
-project(${PROJECT_NAME} VERSION 1.0.0)
+set(PROJECT_NAME mtrsc)
+project(${PROJECT_NAME} VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,9 +14,9 @@ src/main.cpp
 src/utilities/jsonUtils.cpp
 src/utilities/hash.cpp
 
-src/structures/Entity.cpp
-src/structures/Component.cpp
-src/structures/Scene.cpp
+src/structure/Entity.cpp
+src/structure/Component.cpp
+src/structure/Scene.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
