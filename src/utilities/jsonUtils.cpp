@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-std::string exprDeploy(std::string_view expr, std::unordered_map<std::string, std::string>& defines)
+std::string expr_deploy(std::string_view expr, std::unordered_map<std::string, std::string>& defines)
 {
     size_t posOperator = expr.find_last_of("*/");
     if(posOperator == std::string::npos)
@@ -20,8 +20,8 @@ std::string exprDeploy(std::string_view expr, std::unordered_map<std::string, st
         return std::string(expr);
     }
 
-    std::string operand_1 = exprDeploy(expr.substr(0, posOperator), defines);
-    std::string operand_2 = exprDeploy(expr.substr(posOperator + 1), defines);
+    std::string operand_1 = expr_deploy(expr.substr(0, posOperator), defines);
+    std::string operand_2 = expr_deploy(expr.substr(posOperator + 1), defines);
     int value_1, value_2;
 
     auto result = std::from_chars(operand_1.data(), operand_1.data() + operand_1.length(), value_1);
@@ -44,7 +44,7 @@ std::string exprDeploy(std::string_view expr, std::unordered_map<std::string, st
     return std::to_string(value_1);
 }
 
-simdjson::padded_string preprocessJSON(const std::string& path,
+simdjson::padded_string preprocess_json(const std::string& path,
                            std::unordered_map<std::string, std::string>& defines)
 {
     std::ifstream file(path);
@@ -73,7 +73,7 @@ simdjson::padded_string preprocessJSON(const std::string& path,
             size_t end = line.find_last_of('"');
             includePath = line.substr(start, end - start);
 
-            result << preprocessJSON(includePath, defines) << "\n";
+            result << preprocess_json(includePath, defines) << "\n";
             continue;
         }
 
@@ -91,7 +91,7 @@ simdjson::padded_string preprocessJSON(const std::string& path,
             std::string expr = text.substr(pos, text.find('"', pos + value.length()) - pos);
             size_t exprLength = expr.length();
             expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
-            std::string result = exprDeploy(expr, defines);
+            std::string result = expr_deploy(expr, defines);
             text.replace(pos - 1, exprLength + 2, result);
             pos += result.length() - 1;
             pos = text.find(macros, pos);

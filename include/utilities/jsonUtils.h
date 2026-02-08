@@ -11,10 +11,10 @@
 #include <iostream>
 #endif
 
-simdjson::padded_string preprocessJSON(const std::string& path, std::unordered_map<std::string, std::string>& defines);
+simdjson::padded_string preprocess_json(const std::string& path, std::unordered_map<std::string, std::string>& defines);
 
-template<typename T1, typename T2>
-bool setVarJSON(T1 &dest, T2 var)
+template<typename T1, typename T2, typename T3>
+bool set_var_json(T2 &dest, T3 var)
 {
     auto result = var.template get<T1>();
     if(!result.error()) dest = std::move(result.value());
@@ -22,7 +22,7 @@ bool setVarJSON(T1 &dest, T2 var)
 }
 
 template<typename T1, typename T2>
-T1 getResultJSON(T2 result)
+T1 get_result_json(T2 result)
 {
 #ifndef FLAG_RELEASE
     if(result.error())
@@ -35,10 +35,10 @@ T1 getResultJSON(T2 result)
 }
 
 template<typename T1, typename T2>
-T1 getVarJSON(T2 var)
+T1 get_var_json(T2 var)
 {
     auto result = var.template get<T1>();
-    return getResultJSON<T1>(result);
+    return get_result_json<T1>(result);
 }
 
 #endif

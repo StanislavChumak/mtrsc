@@ -1,20 +1,71 @@
 #include "structures/Component.h"
 
-bool Component::from_json(u_int64_t id, simdjson::ondemand::object obj)
+#include "utilities/hash.h"
+#include "utilities/jsonUtils.h"
+
+#include <cstdlib>
+
+bool Component::from_json(std::string name, simdjson::ondemand::object obj)
 {
-    switch (id)
+    switch (hash_c_string(name.c_str()))
     {
-    case 0xC1FFF4F356DFB2FB:
-        /* code */
-        break;
-    
-    default:
-        // return false;
+    case hash_c_string("Transform"):
+    {
+        struct Trancform
+        {
+            float posX, posY;
+            float scaleSizeX, scaleSizeY;
+            float rotation;
+        };
+        size = sizeof(Trancform);
+        date = malloc(size);
+        Trancform *comp = static_cast<Trancform*>(date);
+        comp->posX = 0.f; set_var_json<double>(comp->posX, obj["posX"]);
+        comp->posY = 0.f; set_var_json<double>(comp->posX, obj["posY"]);
+        comp->scaleSizeX = 1.f; set_var_json<double>(comp->posX, obj["scaleSizeX"]);
+        comp->scaleSizeY = 1.f; set_var_json<double>(comp->posX, obj["scaleSizeY"]);
+        comp->rotation = 0.f; set_var_json<double>(comp->posX, obj["rotation"]);
         break;
     }
-    this->id = id;
-    size = 8;
-    date = new u_int8_t(0);
+    case hash_c_string("Parend"):
+    {
+        break;
+    }
+    case hash_c_string("Children"):
+    {
+        break;
+    }
+    case hash_c_string("Sprite"):
+    {
+        break;
+    }
+    case hash_c_string("Animator"):
+    {
+        break;
+    }
+    case hash_c_string("StateAnimator"):
+    {
+        break;
+    }
+    case hash_c_string("Sound"):
+    {
+        break;
+    }
+    case hash_c_string("Music"):
+    {
+        break;
+    }
+    case hash_c_string("CursorFollower"):
+    {
+        break;
+    }
+    default:
+        return false;
+        break;
+    }
+    this->id = hash_string(name);
+    // size = 8;
+    // date = new u_int8_t(0);
 
     return true;
 }
@@ -43,6 +94,6 @@ Component &Component::operator=(Component &&other) noexcept
 
 Component::~Component()
 {
-    delete date;
+    free(date);
     date = nullptr;
 }

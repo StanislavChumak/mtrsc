@@ -7,11 +7,11 @@
 bool Scene::from_json(std::string patchJson)
 {
     std::unordered_map<std::string, std::string> defines;
-    simdjson::padded_string json = preprocessJSON(patchJson, defines);
+    simdjson::padded_string json = preprocess_json(patchJson, defines);
     simdjson::ondemand::parser parser;
     simdjson::ondemand::document doc = parser.iterate(json);
 
-    for(simdjson::ondemand::object obj : getVarJSON<simdjson::ondemand::array>(doc["entities"]))
+    for(simdjson::ondemand::object obj : get_var_json<simdjson::ondemand::array>(doc["entities"]))
     {
         Entity entity{};
         if(entity.from_json(patchJson, obj))

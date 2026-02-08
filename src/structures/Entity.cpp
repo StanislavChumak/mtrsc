@@ -1,6 +1,7 @@
 #include "structures/Entity.h"
 
 #include "utilities/jsonUtils.h"
+
 #include "utilities/hash.h"
 
 #include <iostream>
@@ -10,15 +11,15 @@ bool Entity::from_json(std::string patchJson, simdjson::ondemand::object obj)
     std::string name = "";
     for(auto field : obj)
     {
-        std::string key = std::string(getResultJSON<std::string_view>(field.unescaped_key()));
+        std::string key = std::string(get_result_json<std::string_view>(field.unescaped_key()));
         if(key == "Name")
         {
-            name = std::string(getResultJSON<std::string_view>(field.value()));
+            auto obj = get_var_json<simdjson::ondemand::object>(field.value());
+            name = std::string(get_var_json<std::string_view>(obj["value"]));
             continue;
         }
         Component component{};
-        u_int64_t id = hash_string(key);
-        if(component.from_json(id, getVarJSON<simdjson::ondemand::object>(field.value())))
+        if(component.from_json(key, get_var_json<simdjson::ondemand::object>(field.value())))
         {
             size += component.size;
             components.push_back(std::move(component));
