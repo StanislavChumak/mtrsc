@@ -3,22 +3,20 @@
 
 #include "Entity.h"
 
-#include <fstream>
-
-#define HEADER_SIZE 32
+#define HEADER_SCENE_SIZE 32
 #define ENTITY_INDEX_SIZE 16
 #define RELOCATE_BLOCK_SIZE sizeof(uint16_t) * 2 * 32
 
-struct Scene
+class Scene
 {
-    char magic[4] = {'m','t','s','c'};
-    uint16_t version = 101;
+    const char magic[4] = {'m','t','s','c'};
+    uint16_t version;
     uint16_t flags = 0;
 
     uint32_t entityCount = 0;
-    uint32_t componentTypeCount = 0;
+    uint32_t _void = 0;
 
-    uint32_t entityIndexOffset = HEADER_SIZE; // size = 32 byte
+    uint32_t entityIndexOffset = HEADER_SCENE_SIZE;
     uint32_t entityDataOffset;
     uint32_t relocateBlockOffset;
     uint32_t dynamicDateOffset;
@@ -26,15 +24,16 @@ struct Scene
     std::vector<Entity> entities;
     std::vector<DynamicDataBuffer> dynamicDataBuffer;
 
-    Scene() = default;
+public:
+    Scene(uint16_t version);
     Scene(Scene &) = delete;
     Scene &operator=(const Scene &) = delete;
     Scene(Scene &&other) noexcept;
     Scene &operator=(Scene &&other) noexcept;
-    ~Scene();
+    ~Scene() = default;
 
-    bool from_json(std::string patchJson);
-    bool to_file_mtscn(std::ofstream &file);
+    bool from_json(simdjson::ondemand::array &jsonScen, std::string name);
+    bool to_file_mtsc(std::ofstream &file);
 };
 
 

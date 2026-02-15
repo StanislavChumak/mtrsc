@@ -2,22 +2,28 @@
 #define ENTITY_H
 
 #include "Component.h"
-#include <vector>
 
-struct Entity
+class Entity
 {
     uint64_t id;
     uint32_t size = 0;
     std::vector<Component> components;
-
+    
+public:
     Entity() = default;
     Entity(Entity &) = delete;
     Entity &operator=(const Entity &) = delete;
     Entity(Entity &&other) noexcept;
     Entity &operator=(Entity &&other) noexcept;
-    ~Entity();
+    ~Entity() = default;
 
-    bool from_json(std::string patchJson, std::vector<DynamicDataBuffer> &dynamicDataBuffer, simdjson::ondemand::object obj);
+    uint32_t get_size() { return size; }
+
+    bool from_json(
+        simdjson::ondemand::object &obj,
+        std::string fileName,
+        std::vector<DynamicDataBuffer> &dynamicDataBuffer);
+    bool to_file_mtscn(std::ofstream &file, uint32_t &dataOffset);
 };
 
 

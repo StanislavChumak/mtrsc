@@ -1,38 +1,29 @@
-#include "structure/Scene.h"
+#include "struc/scn/Scene.h"
 
-#include "utilities/jsonUtils.h"
+#include "util/jsonUtils.h"
 
-bool Scene::from_json(std::string patchJson)
+#include <fstream>
+
+bool Scene::from_json(simdjson::ondemand::array &jsonScene, std::string name)
 {
-    std::unordered_map<std::string, std::string> defines;
-    simdjson::padded_string json = preprocess_json(patchJson, defines);
-    simdjson::ondemand::parser parser;
-    simdjson::ondemand::document doc = parser.iterate(json);
-
     uint32_t entitiesSize = 0;
 
-    for(simdjson::ondemand::object obj : get_var_json<simdjson::ondemand::array>(doc["entities"]))
+    for(simdjson::ondemand::object obj : jsonScene)
     {
         Entity entity{};
-        if(entity.from_json(patchJson, dynamicDataBuffer, obj))
-        {
-            entities.push_back(std::move(entity));
-            entitiesSize += entity.size;
-        }
-        else
-        {
-            printf(". It is not compiled !!\n");
-        }
+        if(!entity.from_json(obj, name, dynamicDataBuffer))
+            continue;
+        entitiesSize += entity.get_size();
+        entities.push_back(std::move(entity));
     }
 
     if(entities.empty())
     {
-        printf("!! The Scene is empty. It is not compiled !!\n");
+        std::cerr << "!= The Scene is empty. It is not compiled =!" << std::endl;
         return false;
     }
 
     entityCount = entities.size();
-
     entityDataOffset = entityIndexOffset + entityCount * ENTITY_INDEX_SIZE;
     relocateBlockOffset = entityDataOffset + entitiesSize;
     dynamicDateOffset = relocateBlockOffset + RELOCATE_BLOCK_SIZE;
@@ -40,43 +31,28 @@ bool Scene::from_json(std::string patchJson)
     return true;
 }
 
-bool Scene::to_file_mtscn(std::ofstream &file)
+bool Scene::to_file_mtsc(std::ofstream &file)
 {
     if(!file) return false;
-    // SceneHeader
+    // Header
     file.write(magic, sizeof(magic));
     file.write(reinterpret_cast<char*>(&version), sizeof(version));
     file.write(reinterpret_cast<char*>(&flags), sizeof(flags));
 
     file.write(reinterpret_cast<char*>(&entityCount), sizeof(entityCount));
-    file.write(reinterpret_cast<char*>(&componentTypeCount), sizeof(componentTypeCount));
+    file.write(reinterpret_cast<char*>(&_void), sizeof(_void));
 
     file.write(reinterpret_cast<char*>(&entityIndexOffset), sizeof(entityIndexOffset));
     file.write(reinterpret_cast<char*>(&entityDataOffset), sizeof(entityDataOffset));
+    file.write(reinterpret_cast<char*>(&relocateBlockOffset), sizeof(relocateBlockOffset));
     file.write(reinterpret_cast<char*>(&dynamicDateOffset), sizeof(dynamicDateOffset));
 
-    // EntityIndexTable
+    // Entity
     uint32_t dataOffset = entityDataOffset;
     for(Entity &entity : entities)
-    {
-        file.write(reinterpret_cast<char*>(&entity.id), sizeof(entity.id));
-        file.write(reinterpret_cast<char*>(&dataOffset), sizeof(dataOffset));
-        file.write(reinterpret_cast<char*>(&entity.size), sizeof(entity.size));
-        dataOffset += entity.size;
-    }
+        entity.to_file_mtscn(file, dataOffset);
 
-    // ComponentDataBlocks
-    for(Entity &entity : entities)
-    {
-        for(Component &comp : entity.components)
-        {
-            file.write(reinterpret_cast<char*>(&comp.id), sizeof(comp.id));
-            file.write(reinterpret_cast<char*>(&comp.size), sizeof(comp.size));
-            file.write(reinterpret_cast<char*>(comp.date), comp.size);
-        }
-    }
-
-    // Rellocate Dynamic Block
+    //Rellocate Dynamic Block
     char zero[RELOCATE_BLOCK_SIZE];
     memset(zero, 0, RELOCATE_BLOCK_SIZE);
     file.write(reinterpret_cast<char*>(zero), RELOCATE_BLOCK_SIZE);
@@ -95,9 +71,12 @@ bool Scene::to_file_mtscn(std::ofstream &file)
     return true;
 }
 
+Scene::Scene(uint16_t version)
+: version(version)
+{}
+
 Scene::Scene(Scene &&other) noexcept
 {
-    for(char i{};i>4;i++) magic[i] = other.magic[i];
     version = other.version;
     flags = other.flags;
     other.flags = 0;
@@ -108,16 +87,10 @@ Scene &Scene::operator=(Scene &&other) noexcept
 {
     if(this != &other)
     {
-        for(char i{};i>4;i++) magic[i] = other.magic[i];
         version = other.version;
         flags = other.flags;
         other.flags = 0;
         entities = std::move(other.entities);
     }
     return *this;
-}
-
-Scene::~Scene()
-{
-
 }

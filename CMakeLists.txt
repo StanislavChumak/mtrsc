@@ -9,14 +9,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 add_executable(${PROJECT_NAME}
-src/main.cpp
+    src/main.cpp
 
-src/utilities/jsonUtils.cpp
-src/utilities/hash.cpp
+    src/util/jsonUtils.cpp
+    src/util/hash.cpp
+    src/util/string_optimizer.cpp
+    src/util/to_dynamic_data.cpp
 
-src/structure/Entity.cpp
-src/structure/Component.cpp
-src/structure/Scene.cpp
+    src/struc/scn/Entity.cpp
+    src/struc/scn/Component.cpp
+    src/struc/scn/Scene.cpp
+
+    src/struc/res/ResourcePack.cpp
+    src/struc/res/ResourceType.cpp
+    src/struc/res/Resource.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

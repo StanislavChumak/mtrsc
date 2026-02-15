@@ -29,6 +29,4 @@ constexpr uint64_t hash_c_string(const char *s, uint64_t seed = FNV_OFFSET_BASIS
 
 uint64_t hash_string(const std::string& s, uint64_t seed = FNV_OFFSET_BASIS);
 
-uint64_t make_scene_entity_id(const std::string& scenePath, const std::string& entityName);
-
 #endif

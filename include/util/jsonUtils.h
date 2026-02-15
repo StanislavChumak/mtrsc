@@ -14,10 +14,10 @@
 simdjson::padded_string preprocess_json(const std::string& path, std::unordered_map<std::string, std::string>& defines);
 
 template<typename T1, typename T2, typename T3>
-bool set_var_json(T2 &dest, T3 var)
+bool set_in_var_json(T2 &dest, T3 var)
 {
     auto result = var.template get<T1>();
-    if(!result.error()) dest = std::move(result.value());
+    if(!result.error()) dest = static_cast<T2>(std::move(result.value()));
     return !result.error();
 }
 

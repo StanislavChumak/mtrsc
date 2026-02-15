@@ -1,4 +1,4 @@
-#include "utilities/jsonUtils.h"
+#include "util/jsonUtils.h"
 
 #include <charconv>
 
@@ -28,6 +28,7 @@ std::string expr_deploy(std::string_view expr, std::unordered_map<std::string, s
 #   ifndef FLAG_RELEASE
     if(result.ec != std::errc()) std::cerr << "Failed convert \"" << operand_1 << "\" to int\n";  
 #   endif
+
     result = std::from_chars(operand_2.data(), operand_2.data() + operand_2.length(), value_2);
 #   ifndef FLAG_RELEASE
     if(result.ec != std::errc()) std::cerr << "Failed convert \"" << operand_2 << "\" to int\n";  
@@ -88,10 +89,13 @@ simdjson::padded_string preprocess_json(const std::string& path,
         while (pos != std::string::npos)
         {
             pos = text.rfind('"', pos) + 1;
-            std::string expr = text.substr(pos, text.find('"', pos + value.length()) - pos);
+            std::string expr = text.substr(pos, text.find('"', pos + macros.length()) - pos);
             size_t exprLength = expr.length();
+
             expr.erase(std::remove(expr.begin(), expr.end(), ' '), expr.end());
+
             std::string result = expr_deploy(expr, defines);
+
             text.replace(pos - 1, exprLength + 2, result);
             pos += result.length() - 1;
             pos = text.find(macros, pos);
