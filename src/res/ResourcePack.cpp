@@ -1,4 +1,4 @@
-#include "struc/res/ResourcePack.h"
+#include "res/ResourcePack.h"
 
 #include "util/jsonUtils.h"
 #include "util/hash.h"

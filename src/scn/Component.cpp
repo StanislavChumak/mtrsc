@@ -1,5 +1,6 @@
 #include "from_to_comp.cpp"
 
+#include "util/hash.h"
 
 bool Component::from_json(
     simdjson::ondemand::object &obj,

@@ -1,4 +1,4 @@
-#include "struc/scn/Entity.h"
+#include "scn/Entity.h"
 
 #include "util/jsonUtils.h"
 #include "util/hash.h"

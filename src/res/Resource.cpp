@@ -1,5 +1,7 @@
 #include "from_to_res.cpp"
 
+#include "util/hash.h"
+
 bool Resource::from_json(
     simdjson::ondemand::object &obj,
     std::string &resName,

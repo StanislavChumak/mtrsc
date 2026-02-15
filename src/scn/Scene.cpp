@@ -1,4 +1,4 @@
-#include "struc/scn/Scene.h"
+#include "scn/Scene.h"
 
 #include "util/jsonUtils.h"
 

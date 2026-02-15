@@ -1,4 +1,4 @@
-#include "struc/res/ResourceType.h"
+#include "res/ResourceType.h"
 
 #include <fstream>
 

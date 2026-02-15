@@ -5,16 +5,18 @@
 #include "util/jsonUtils.h"
 #include <string>
 
-#define GET_REQUIRED_PARAMETER(object, param, jsonType, source, jsonName) \
-if(!set_in_var_json<jsonType>(param, source[jsonName])) \
-    std::cerr << "!= " << #object << " failed to get required parameter: " << jsonName << std::endl
+#include "dynamic_field.def"
 
-#define SET_DYNAMIC_STRING(string, ptr, offset, size, vectorDynamicDate) \
-auto string##dynamic = string_to_dynamic_date(std::move(string), &ptr->offset, ptr->size); \
+#define GET_REQUIRED_FIELD(object, var, jsonType, source, jsonName) \
+if(!set_in_var_json<jsonType>(var, source[jsonName])) \
+    std::cerr << "!= " << #object << " failed to get required field: " << jsonName << std::endl
+
+#define SET_DYNAMIC_STRING(string, ptr, nameField, vectorDynamicDate) \
+auto string##dynamic = string_to_dynamic_date(std::move(string), &ptr->nameField##Offset, ptr->nameField##Size); \
 vectorDynamicDate.push_back(std::move(string##dynamic))
 
-#define SET_DYNAMIC_ARRAY(array, arrayType, jsonType, ptr, offset, size, vectorDynamicDate) \
-auto array##dynamic = array_to_dynamic_date<arrayType, jsonType>(array, &ptr->offset, ptr->size); \
+#define SET_DYNAMIC_ARRAY(array, arrayType, jsonType, ptr, nameField, vectorDynamicDate) \
+auto array##dynamic = array_to_dynamic_date<arrayType, jsonType>(array, &ptr->nameField##Offset, ptr->nameField##Size); \
 vectorDynamicDate.push_back(std::move(array##dynamic))
 
 DynamicDataBuffer string_to_dynamic_date(std::string str, uint32_t *offset, uint32_t &size);

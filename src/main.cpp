@@ -1,5 +1,5 @@
-#include "struc/scn/Scene.h"
-#include "struc/res/ResourcePack.h"
+#include "scn/Scene.h"
+#include "res/ResourcePack.h"
 
 #include "util/jsonUtils.h"
 
