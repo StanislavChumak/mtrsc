@@ -8,11 +8,13 @@ bool ResourceType::from_json(
     std::vector<DynamicDataBuffer> &dynamicDataBuffer)
 {
     name = resName;
+    sizeName = static_cast<uint32_t>(name.size());
     for(simdjson::ondemand::object obj : array)
     {
         Resource res{};
         if(!res.from_json(obj, resName, dynamicDataBuffer))
             continue;
+        sizeBlockResources += res.get_size();
         resources.push_back(std::move(res));
     }
 
@@ -27,9 +29,9 @@ bool ResourceType::from_json(
 
 bool ResourceType::to_file_mtscn(std::ofstream &file)
 {
-    uint32_t sizeName = static_cast<uint32_t>(name.size());
     file.write(reinterpret_cast<char*>(&sizeName), sizeof(sizeName));
     file.write(name.data(), sizeName);
+    file.write(reinterpret_cast<char*>(&sizeBlockResources), sizeof(sizeBlockResources));
 
     for(auto &res : resources)
         res.to_file_mtscn(file);

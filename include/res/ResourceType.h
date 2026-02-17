@@ -5,6 +5,8 @@
 
 class ResourceType
 {
+    uint32_t sizeBlockResources = 0;
+    uint32_t sizeName;
     std::string name;
     std::vector<Resource> resources;
 
