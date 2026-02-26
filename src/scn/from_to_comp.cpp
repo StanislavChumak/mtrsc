@@ -91,17 +91,18 @@ void Component::to_StateAnimator(simdjson::ondemand::object &obj, std::vector<Dy
     StateAnimator_sc::State *states = new StateAnimator_sc::State[countStates];
     comp->statesSize = countStates * sizeof(StateAnimator_sc::State);
 
-    int i = 0;
+    StateAnimator_sc::State *iter = states;
     for(auto field : obj)
     {
         std::string name = std::string(get_result_json<std::string_view>(field.unescaped_key()));
         simdjson::ondemand::object dataState = get_var_json<simdjson::ondemand::object>(field.value());
 
-        uint16_t offset, count;
-        GET_REQUIRED_FIELD(StateAnimator_sc, offset, uint64_t, dataState, "offset");
-        GET_REQUIRED_FIELD(StateAnimator_sc, count, uint64_t, dataState, "count");
+        GET_REQUIRED_FIELD(StateAnimator_sc, iter->offset, uint64_t, dataState, "offset");
+        GET_REQUIRED_FIELD(StateAnimator_sc, iter->count, uint64_t, dataState, "count");
 
-        states[i++] = {name, offset, count};
+        SET_DYNAMIC_STRING(name, iter, name, bufferDynamicDate);
+
+        iter++;
     }
 
 
