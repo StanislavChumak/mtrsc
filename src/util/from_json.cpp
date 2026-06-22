@@ -1,4 +1,4 @@
-#include "util/jsonUtils.h"
+#include "util/from_json.hpp"
 
 #include <charconv>
 
@@ -9,32 +9,32 @@
 
 std::string expr_deploy(std::string_view expr, std::unordered_map<std::string, std::string>& defines)
 {
-    size_t posOperator = expr.find_last_of("*/");
-    if(posOperator == std::string::npos)
-        posOperator = expr.find_last_of("+-");
+    size_t pos_operator = expr.find_last_of("*/");
+    if(pos_operator == std::string::npos)
+        pos_operator = expr.find_last_of("+-");
     
-    if(posOperator == std::string::npos)
+    if(pos_operator == std::string::npos)
     {
         auto it = defines.find(std::string(expr));
         if (it != defines.end()) return it->second;
         return std::string(expr);
     }
 
-    std::string operand_1 = expr_deploy(expr.substr(0, posOperator), defines);
-    std::string operand_2 = expr_deploy(expr.substr(posOperator + 1), defines);
+    std::string operand_1 = expr_deploy(expr.substr(0, pos_operator), defines);
+    std::string operand_2 = expr_deploy(expr.substr(pos_operator + 1), defines);
     int value_1, value_2;
 
     auto result = std::from_chars(operand_1.data(), operand_1.data() + operand_1.length(), value_1);
-#   ifndef FLAG_RELEASE
+#ifndef FLAG_RELEASE
     if(result.ec != std::errc()) std::cerr << "Failed convert \"" << operand_1 << "\" to int\n";  
-#   endif
+#endif
 
     result = std::from_chars(operand_2.data(), operand_2.data() + operand_2.length(), value_2);
-#   ifndef FLAG_RELEASE
+#ifndef FLAG_RELEASE
     if(result.ec != std::errc()) std::cerr << "Failed convert \"" << operand_2 << "\" to int\n";  
-#   endif
+#endif
 
-    switch (expr[posOperator])
+    switch (expr[pos_operator])
     {
     case '*': value_1 *= value_2; break;
     case '/': value_1 = value_2 ? value_1 / value_2 : 0; break;
@@ -69,12 +69,12 @@ simdjson::padded_string preprocess_json(const std::string& path,
 
         if (line.rfind("#include", 0) == 0)
         {
-            std::string includePath;
+            std::string include_path;
             size_t start = line.find('"') + 1;
             size_t end = line.find_last_of('"');
-            includePath = line.substr(start, end - start);
+            include_path = line.substr(start, end - start);
 
-            result << preprocess_json(includePath, defines) << "\n";
+            result << preprocess_json(include_path, defines) << "\n";
             continue;
         }
 

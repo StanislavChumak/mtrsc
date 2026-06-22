@@ -13,7 +13,8 @@ endif()
 add_executable(${PROJECT_NAME}
     src/main.cpp
 
-    src/util/jsonUtils.cpp
+    src/util/LogSystem.cpp
+    src/util/from_json.cpp
     src/util/hash.cpp
     src/util/string_optimizer.cpp
     src/util/to_dynamic_data.cpp

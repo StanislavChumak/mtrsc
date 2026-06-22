@@ -1,66 +1,73 @@
 #include "from_to_comp.cpp"
 
-#include "util/hash.h"
+#include "util/hash.hpp"
+#include "util/LogSystem.hpp"
 
 bool Component::from_json(
     simdjson::ondemand::object &obj,
-    const std::string &compName,
-    std::vector<DynamicDataBuffer> &bufferDynamicDate)
+    const std::string &name,
+    std::vector<DynamicBuffer> &dynamic_buffer)
 {
-    id = hash_string(compName);
-    switch (id)
+    _name = name;
+    _id = hash_string(_name);
+    switch (_id)
     {
-#define X(comp) case hash_c_string(#comp):to_##comp(obj, bufferDynamicDate);break;
+#define X(comp) case hash_c_string(#comp):to_##comp(obj, dynamic_buffer);break;
     COMPONENT_TYPE
 #undef X
     default:
-        std::cerr << "!= There is no such component as \"" << compName << "\" =!" << std::endl;
+        LogSystem::print_err(LogSystem::args_to_str("There is no such component as \"", name, "\""));
         return false;
         break;
     }
 
-    if(!size)
+    if(_size == 0)
     {
-        std::cerr << "!= Component of type \"" << compName << "\" was empty =!" << std::endl;
+        LogSystem::print_err(LogSystem::args_to_str("Component of type \"", name, "\" was empty"));
         return false;
     }
-    size += 12;
 
     return true;
 }
 
 bool Component::to_file_mtscn(std::ofstream &file)
 {
-    file.write(reinterpret_cast<char*>(&id), sizeof(id));
-    file.write(reinterpret_cast<char*>(&size), sizeof(size));
-    file.write(reinterpret_cast<char*>(date), size);
+    FILE_WRITE(file, _id);
+    LogSystem::print_parameter("\t  "+_name, std::to_string(_id), sizeof(_id), file.tellp());
+
+    file.write(reinterpret_cast<char*>(_date), _size);
+    LogSystem::print_parameter("\t    comp_data", std::to_string(_size), _size, file.tellp());
     return true;
 }
 
 Component::Component(Component &&other) noexcept
 {
-    id = other.id;
-    size = other.size;
-    other.size = 0;
-    date = other.date;
-    other.date = nullptr;
+    _id = other._id;
+    other._id = 0;
+    _size = other._size;
+    other._size = 0;
+    _date = other._date;
+    other._date = nullptr;
+    _name = std::move(other._name);
 }
 
 Component &Component::operator=(Component &&other) noexcept
 {
     if(this != &other)
     {
-        id = other.id;
-        size = other.size;
-        other.size = 0;
-        date = other.date;
-        other.date = nullptr;
+        _id = other._id;
+        other._id = 0;
+        _size = other._size;
+        other._size = 0;
+        _date = other._date;
+        other._date = nullptr;
+        _name = std::move(other._name);
     }
     return *this;
 }
 
 Component::~Component()
 {
-    free(date);
-    date = nullptr;
+    free(_date);
+    _date = nullptr;
 }

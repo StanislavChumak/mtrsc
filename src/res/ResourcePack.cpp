@@ -1,27 +1,39 @@
-#include "res/ResourcePack.h"
+#include "res/ResourcePack.hpp"
 
-#include "util/jsonUtils.h"
-#include "util/hash.h"
+#include "util/from_json.hpp"
+#include "util/hash.hpp"
+#include "util/LogSystem.hpp"
 
 #include <fstream>
 
-bool ResourcePack::from_json(simdjson::ondemand::object &jsonRes, std::string name)
+bool ResourcePack::from_json(simdjson::ondemand::object &pack_json, std::string name)
 {
-    for(auto res : jsonRes)
+    for(auto res : pack_json)
     {
         std::string key = std::string(get_result_json<std::string_view>(res.unescaped_key()));
         auto array = get_var_json<simdjson::ondemand::array>(res.value());
-        ResourceType type{};
-        if(!type.from_json(array, key, dynamicDataBuffer))
+        ResourceType type;
+        if(!type.from_json(array, key, _dynamic_buffers))
+        {
             continue;
-        resourceTypes.push_back(std::move(type));
+        }
+        _size += type.size();
+        _resource_types.push_back(std::move(type));
     }
 
-    if(resourceTypes.empty())
+    if(_resource_types.empty())
     {
-        std::cerr << "!= The ResourcePack \"" << name << "\" is empty =!\n" << std::endl;
+        LogSystem::print_err(LogSystem::args_to_str("The ResourcePack \"", name, "\" is empty =!"));
         return false;
     }
+
+    _dynamic_date_size = _size;
+    for(auto dynamic : _dynamic_buffers)
+    {
+        *dynamic.p_offset = _dynamic_date_size;
+        _dynamic_date_size += dynamic.size;
+    }
+    _dynamic_date_size -= _size;
 
     return true;
 }
@@ -29,48 +41,55 @@ bool ResourcePack::from_json(simdjson::ondemand::object &jsonRes, std::string na
 bool ResourcePack::to_file_mtrs(std::ofstream &file)
 {
     if(!file) return false;
-    // Header
-    file.write(magic, sizeof(magic));
-    file.write(reinterpret_cast<char*>(&version), sizeof(version));
-    file.write(reinterpret_cast<char*>(&flags), sizeof(flags));
 
-    file.write(reinterpret_cast<char*>(&resourceDataOffset), sizeof(resourceDataOffset));
-    file.write(reinterpret_cast<char*>(&dynamicDateOffset), sizeof(dynamicDateOffset));
+    LogSystem::print_variable("file_size", std::to_string(_size + _dynamic_date_size));
+
+    // Header
+    file.write(_magic, sizeof(_magic));
+    FILE_WRITE(file, _version);
+    LogSystem::print_header(_magic, _version);
 
     // Resources
-    for(auto &resType : resourceTypes)
-        resType.to_file_mtscn(file);
+    LogSystem::print_variable("resource_types", std::to_string(_resource_types.size()));
+
+    for(auto &res_type : _resource_types)
+    {
+        res_type.to_file_mtscn(file);
+    }
 
     // Dynamic Data Block
-    uint32_t dynamicOffset = dynamicDateOffset;
-    for(auto dynamic : dynamicDataBuffer)
+    LogSystem::print_variable("dynamic_data_block", std::to_string(_dynamic_date_size));
+
+    for(auto dynamic : _dynamic_buffers)
     {
-        file.write(dynamic.date, dynamic.sizeData);
-        *dynamic.pOffset = dynamicOffset;
-        dynamicOffset += dynamic.sizeData;
+        file.write(dynamic.date, dynamic.size);
+        LogSystem::print_parameter("  data", std::to_string(dynamic.size), dynamic.size, file.tellp());
     }
 
     return true;
 }
 
-ResourcePack::ResourcePack(uint16_t version)
-: version(version)
+ResourcePack::ResourcePack(float version)
+: _version(version)
 {}
 
 ResourcePack::ResourcePack(ResourcePack &&other) noexcept
 {
-    version = other.version;
-    flags = other.flags;
-    other.flags = 0;
+    _version = other._version;
+    other._version = 0.f;
+
+    _resource_types = std::move(other._resource_types);
+    _dynamic_buffers = std::move(other._dynamic_buffers);
 }
 
 ResourcePack &ResourcePack::operator=(ResourcePack &&other) noexcept
 {
     if(this != &other)
     {
-        version = other.version;
-        flags = other.flags;
-        other.flags = 0;
+        _version = other._version;
+        other._version = 0.f;
+        _resource_types = std::move(other._resource_types);
+        _dynamic_buffers = std::move(other._dynamic_buffers);
     }
     return *this;
 }

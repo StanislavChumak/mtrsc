@@ -1,6 +1,6 @@
-#include "util/hash.h"
+#include "util/hash.hpp"
 
-uint64_t hash_string(const std::string& s, uint64_t seed)
+uint64_t hash_string(const std::string& str, uint64_t seed)
 {
-    return fnv1a_64(s.data(), s.size(), seed);
+    return fnv1a_64(str.data(), str.size(), seed);
 }

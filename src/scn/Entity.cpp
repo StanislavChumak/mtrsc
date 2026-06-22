@@ -1,83 +1,89 @@
-#include "scn/Entity.h"
+#include "scn/Entity.hpp"
 
-#include "util/jsonUtils.h"
-#include "util/hash.h"
+#include "util/from_json.hpp"
+#include "util/hash.hpp"
+#include "util/LogSystem.hpp"
 
 #include <fstream>
-#include <iostream>
 
 bool Entity::from_json(
     simdjson::ondemand::object &obj,
-    std::string fileName,
-    std::vector<DynamicDataBuffer> &dynamicDataBuffer)
+    std::string scene_name,
+    std::vector<DynamicBuffer> &dynamic_buffers)
 {
-    std::string name = "";
     for(auto field : obj)
     {
         std::string key = std::string(get_result_json<std::string_view>(field.unescaped_key()));
-        auto obj = get_var_json<simdjson::ondemand::object>(field.value());
         if(key == "Name")
         {
-            name = std::string(get_var_json<std::string_view>(obj["value"]));
+            set_in_var_json<std::string_view>(_name, field.value());
             continue;
         }
+        auto obj = get_var_json<simdjson::ondemand::object>(field.value());
         Component component{};
-        if(!component.from_json(obj, key, dynamicDataBuffer))
+        if(!component.from_json(obj, key, dynamic_buffers))
+        {
             continue;
-        size += component.get_size();
-        components.push_back(std::move(component));
+        }
+        _size += component.size();
+        _components.push_back(std::move(component));
         auto hash = hash_string(key);
     }
-    if(name == "")
+
+    if(_name == "")
     {
-        std::cerr << "!= The entity has no \"Name\" =!" << std::endl;
+        LogSystem::print_err("The entity has no \"Name\"");
         return false;
     }
-    if(size == 0)
+    if(_size == sizeof(_id) * 2)
     {
-        std::cerr << "!= The entity is empty =!" << std::endl;
+        LogSystem::print_err("The entity is empty");
         return false;
     }
-    id = hash_string(fileName);
-    id = hash_string(name, id);
+    _id = hash_string(scene_name);
+    _id = hash_string(_name, _id);
     return true;
 }
 
-bool Entity::to_file_mtscn(std::ofstream &file, uint32_t &dataOffset)
+bool Entity::to_file_mtscn(std::ofstream &file)
 {
-    file.write(reinterpret_cast<char*>(&id), sizeof(id));
-    file.write(reinterpret_cast<char*>(&dataOffset), sizeof(dataOffset));
-    file.write(reinterpret_cast<char*>(&size), sizeof(size));
+    uint64_t offset_to_next_entity = static_cast<uint64_t>(file.tellp()) + _size;
 
-    std::streampos entityCursor = file.tellp();
-    file.seekp(dataOffset, std::ios::beg);
+    FILE_WRITE(file, _id);
+    LogSystem::print_parameter("  "+_name, std::to_string(_id), sizeof(_id), file.tellp());
 
-    for(auto &comp : components)
+    LogSystem::print_variable("\tsize", std::to_string(_size));
+
+    LOG_WRITE(file, offset_to_next_entity, "\toffset_to_next_entity");
+
+    for(auto &comp : _components)
+    {
         comp.to_file_mtscn(file);
+    }
 
-    file.seekp(entityCursor, std::ios::beg);
-    dataOffset += size;
     return true;
 }
 
 Entity::Entity(Entity &&other) noexcept
 {
-    id = other.id;
-    other.id = 0;
-    size = other.size;
-    other.size = 0;
-    components = std::move(other.components);
+    _id = other._id;
+    other._id = 0;
+    _size = other._size;
+    other._size = 0;
+    _components = std::move(other._components);
+    _name = std::move(other._name);
 }
 
 Entity &Entity::operator=(Entity &&other) noexcept
 {
     if(this != &other)
     {
-        id = other.id;
-        other.id = 0;
-        size = other.size;
-        other.size = 0;
-        components = std::move(other.components);
+        _id = other._id;
+        other._id = 0;
+        _size = other._size;
+        other._size = 0;
+        _components = std::move(other._components);
+        _name = std::move(other._name);
     }
     return *this;
 }

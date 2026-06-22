@@ -1,5 +1,5 @@
-#ifndef JSON_UTILS_H
-#define JSON_UTILS_H
+#ifndef FROM_JSON_HPP
+#define FROM_JSON_HPP
 
 #include "simdjson.h"
 
@@ -7,9 +7,7 @@
 #include <vector>
 #include <unordered_map>
 
-#ifndef FLAG_RELEASE
-#include <iostream>
-#endif
+#include "util/LogSystem.hpp"
 
 simdjson::padded_string preprocess_json(const std::string& path, std::unordered_map<std::string, std::string>& defines);
 
@@ -24,13 +22,13 @@ bool set_in_var_json(T2 &dest, T3 var)
 template<typename T1, typename T2>
 T1 get_result_json(T2 result)
 {
-#ifndef FLAG_RELEASE
     if(result.error())
     {
-        std::cerr << "Fatal error find " << typeid(T1).name() << std::endl
-                << "Error: " << simdjson::error_message(result.error()) << std::endl;
+        std::stringstream ss;
+        ss << "Fatal error find " << typeid(T1).name() << std::endl;
+        ss << "Error: " << simdjson::error_message(result.error()) << std::endl;
+        LogSystem::print_err(ss.str());
     }
-#endif
     return result.value();
 }
 

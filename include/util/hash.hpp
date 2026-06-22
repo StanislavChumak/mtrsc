@@ -1,5 +1,5 @@
-#ifndef HASH_H
-#define HASH_H
+#ifndef HASH_HPP
+#define HASH_HPP
 
 #include <cstdint>
 #include <cstddef>

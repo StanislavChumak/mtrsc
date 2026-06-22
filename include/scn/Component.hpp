@@ -3,7 +3,7 @@
 
 #include "simdjson.h"
 
-#include "util/DynamicDataBuffer.h"
+#include "util/DynamicBuffer.hpp"
 
 #define COMPONENT_TYPE \
 X(Transform)\
@@ -19,9 +19,12 @@ X(CursorFollower)
 
 class Component
 {
-    uint64_t id = 0;
-    uint32_t size = 0;
-    void *date = nullptr;
+    uint64_t _id = 0;
+    uint32_t _size = 0;
+    void *_date = nullptr;
+
+    std::string _name;
+    
 public:
     Component() = default;
     Component(Component &) = delete;
@@ -30,15 +33,15 @@ public:
     Component &operator=(Component &&other) noexcept;
     ~Component();
     
-    uint32_t get_size() { return size; }
+    uint32_t size() { return _size + sizeof(_id); }
 
     bool from_json(
         simdjson::ondemand::object &obj,
-        const std::string &compName,
-        std::vector<DynamicDataBuffer> &bufferDynamicDate);
+        const std::string &name,
+        std::vector<DynamicBuffer> &dynamic_buffers);
     bool to_file_mtscn(std::ofstream &file);
 
-#define X(comp) void to_##comp(simdjson::ondemand::object &obj, std::vector<DynamicDataBuffer> &bufferDynamicDate);
+#define X(Comp) void to_##Comp(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers);
     COMPONENT_TYPE
 #undef X
 };
