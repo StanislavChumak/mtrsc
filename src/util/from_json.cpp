@@ -7,6 +7,9 @@
 
 #include <algorithm>
 
+namespace mtrs::util
+{
+
 std::string expr_deploy(std::string_view expr, std::unordered_map<std::string, std::string>& defines)
 {
     size_t pos_operator = expr.find_last_of("*/");
@@ -103,4 +106,6 @@ simdjson::padded_string preprocess_json(const std::string& path,
     }
 
     return simdjson::padded_string(text.data(), text.length());
+}
+
 }

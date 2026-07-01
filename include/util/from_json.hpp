@@ -7,7 +7,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include "util/LogSystem.hpp"
+#include "util/mtrsc_message.hpp"
+
+namespace mtrs::util
+{
 
 simdjson::padded_string preprocess_json(const std::string& path, std::unordered_map<std::string, std::string>& defines);
 
@@ -24,10 +27,8 @@ T1 get_result_json(T2 result)
 {
     if(result.error())
     {
-        std::stringstream ss;
-        ss << "Fatal error find " << typeid(T1).name() << std::endl;
-        ss << "Error: " << simdjson::error_message(result.error()) << std::endl;
-        LogSystem::print_err(ss.str());
+        MTRS_ERROR("Fatal error find ", typeid(T1).name(), '\n',
+            "Error: ", simdjson::error_message(result.error()));
     }
     return result.value();
 }
@@ -37,6 +38,8 @@ T1 get_var_json(T2 var)
 {
     auto result = var.template get<T1>();
     return get_result_json<T1>(result);
+}
+
 }
 
 #endif

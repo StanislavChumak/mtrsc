@@ -1,12 +1,15 @@
 #include "res/ResourceType.hpp"
 
 #include "util/hash.hpp"
-#include "util/LogSystem.hpp"
+#include "util/mtrsc_message.hpp"
 
 #include <fstream>
 
+namespace mtrs::res
+{
+
 bool ResourceType::from_json(simdjson::ondemand::array &array, 
-    std::string &name, std::vector<DynamicBuffer> &dynamic_buffers)
+    std::string &name, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
     _name = name;
 
@@ -23,7 +26,7 @@ bool ResourceType::from_json(simdjson::ondemand::array &array,
 
     if(_resources.empty())
     {
-        LogSystem::print_err(LogSystem::args_to_str("The ResourceType \"", name, "\" is empty"));
+        MTRS_ERROR("The ResourceType \"", name, "\" is empty");
         return false;
     }
     
@@ -32,17 +35,17 @@ bool ResourceType::from_json(simdjson::ondemand::array &array,
 
 bool ResourceType::to_file_mtscn(std::ofstream &file)
 {
-    uint64_t id = hash_string(_name);
+    uint64_t id = mtrs::util::hash_string<uint64_t>(_name);
     uint64_t offset_to_next_type = static_cast<uint64_t>(file.tellp()) + _size;
 
-    FILE_WRITE(file, id);
-    LogSystem::print_parameter("  "+_name, std::to_string(id), sizeof(id), file.tellp());
+    file.write(reinterpret_cast<char*>(&id), sizeof(id));
+    util::parameter_message(2, _name, id, sizeof(id), file.tellp());
 
-    LogSystem::print_variable("  size", std::to_string(_size));
+    util::variable_message(2, "size", _size);
 
-    LOG_WRITE(file, offset_to_next_type, "  offset_to_next_type");
+    LOG_WRITE(file, 2, offset_to_next_type, "offset_to_next_type");
 
-    LogSystem::print_variable("  resources", std::to_string(_resources.size()));
+    util::variable_message(2, "resources", _resources.size());
 
     for(auto &res : _resources)
     {
@@ -68,4 +71,6 @@ ResourceType &ResourceType::operator=(ResourceType &&other) noexcept
         _size = other._size;
     }
     return *this;
+}
+
 }

@@ -4,18 +4,23 @@
 #include "util/string_optimizer.hpp"
 #include "util/to_dynamic_data.hpp"
 #include "util/hash.hpp"
-#include "util/LogSystem.hpp"
+#include "util/mtrsc_message.hpp"
 
 #include <fstream>
 
+#include "dynamic_field.def"
+
+namespace mtrs::res
+{
+
 std::string shader_path_to_string(std::string path);
 
-void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
+void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
 #include "res_struct/Shader.struct"
     _size = sizeof(Shader_rs);
-    _date = malloc(_size);
-    Shader_rs *res = static_cast<Shader_rs*>(_date);
+    _data = malloc(_size);
+    Shader_rs *res = static_cast<Shader_rs*>(_data);
 
     std::string name;
     std::string vertex;
@@ -27,11 +32,11 @@ void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<DynamicBu
 
     vertex = shader_path_to_string(std::move(vertex));
     fragment = shader_path_to_string(std::move(fragment));
-
     
     SET_DYNAMIC_STRING(vertex, res, vertex, dynamic_buffers);
     SET_DYNAMIC_STRING(fragment, res, fragment, dynamic_buffers);
-    _id = hash_string(name);
+
+    _id = util::hash_string<uint64_t>(name);
 }
 
 std::string shader_path_to_string(std::string path)
@@ -42,7 +47,7 @@ std::string shader_path_to_string(std::string path)
     shader.open(path, std::ios::ate | std::ios::binary);
     if (!shader.is_open())
     {
-        LogSystem::print_err("Failed to open shader: " + path);
+        util::mtrsc_message(util::TypeMessage::ERROR ,"Failed to open shader: ", path);
         return "";
     }
     buffer.resize(shader.tellg());
@@ -50,15 +55,15 @@ std::string shader_path_to_string(std::string path)
 
     shader.read(buffer.data(), buffer.size());
 
-    return stiring_optimizer(std::move(buffer));
+    return util::stiring_optimizer(std::move(buffer));
 }
 
-void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
+void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
 #include "res_struct/Texture.struct"
     _size = sizeof(Texture_rs);
-    _date = malloc(_size);
-    Texture_rs *res = static_cast<Texture_rs*>(_date);
+    _data = malloc(_size);
+    Texture_rs *res = static_cast<Texture_rs*>(_data);
 
     std::string name;
     std::string path;
@@ -67,15 +72,16 @@ void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<DynamicB
     IS_SET_FIELD(Texture_rs, path, std::string_view, obj["path"]);
 
     SET_DYNAMIC_STRING(path, res , path, dynamic_buffers);
-    _id = hash_string(name);
+
+    _id = util::hash_string<uint64_t>(name);
 }
 
-void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
+void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
 #include "res_struct/TextureAtlas.struct"
     _size = sizeof(TextureAtlas_rs);
-    _date = malloc(_size);
-    TextureAtlas_rs *res = static_cast<TextureAtlas_rs*>(_date);
+    _data = malloc(_size);
+    TextureAtlas_rs *res = static_cast<TextureAtlas_rs*>(_data);
 
     std::string name;
 
@@ -86,22 +92,47 @@ void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<DynamicBu
     IS_SET_FIELD(TextureAtlas_rs, res->sub_width, uint64_t, obj["sub_width"]);
     IS_SET_FIELD(TextureAtlas_rs, res->sub_height, uint64_t, obj["sub_height"]);
     
-    _id = hash_string(name);
+    _id = util::hash_string<uint64_t>(name);
 }
 
-void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
+void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
+#include "res_struct/Sound.struct"
+    _size = sizeof(Sound_sc);
+    _data = malloc(_size);
+    Sound_sc *res = static_cast<Sound_sc*>(_data);
 
+    std::string name;
+    std::string path;
+
+    IS_SET_FIELD(Sound_sc, name, std::string_view, obj["name"]);
+
+    IS_SET_FIELD(Sound_sc, path, std::string_view, obj["path"]);
+    SET_DYNAMIC_STRING(path, res , path, dynamic_buffers);
+
+    res->count = 1; util::set_in_var_json<uint64_t>(res->count, obj["count"]);
+
+    bool flags[4];
+    std::memset(flags, 0, 4);
+
+    util::set_in_var_json<bool>(flags[0], obj["looping"]);
+    util::set_in_var_json<bool>(flags[1], obj["stream"]);
+    util::set_in_var_json<bool>(flags[2], obj["position"]);
+    util::set_in_var_json<bool>(flags[3], obj["pitch"]);
+
+    for(int i = 0; i < 4; i++)
+    {
+        res->flag |= (uint32_t)flags[i] << i;
+    }
+
+    _id = util::hash_string<uint64_t>(name);
 }
 
-void Resource::to_musics(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
-{
-    
-}
-
-void Resource::to_render_context(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffers)
+void Resource::to_render_context(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
     std::string name;
     IS_SET_FIELD(RenderContext, name, std::string_view, obj["name"]);
-    _id = hash_string(name);
+    _id = util::hash_string<uint64_t>(name);
+}
+
 }

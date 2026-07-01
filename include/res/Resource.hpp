@@ -3,14 +3,20 @@
 
 #include "simdjson.h"
 
-#include "util/DynamicBuffer.hpp"
-
 #include "res_struct/res_type.def"
+
+namespace mtrs::util
+{
+    struct DynamicBuffer;
+}
+
+namespace mtrs::res
+{
 
 class Resource
 {
     uint64_t _id = 0;
-    void *_date = nullptr;
+    void *_data = nullptr;
     
     uint32_t _size = 0;
 
@@ -27,12 +33,14 @@ public:
     bool from_json(
         simdjson::ondemand::object &obj,
         std::string &resource, 
-        std::vector<DynamicBuffer> &dynamic_buffer);
+        std::vector<util::DynamicBuffer> &dynamic_buffer);
     bool to_file_mtscn(std::ofstream &file);
 
-#define X(res) void to_##res(simdjson::ondemand::object &obj, std::vector<DynamicBuffer> &dynamic_buffer);
+#define X(res) void to_##res(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffer);
     RESOURCE_TYPE
 #undef X
 };
+
+}
 
 #endif

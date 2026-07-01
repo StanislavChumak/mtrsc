@@ -3,6 +3,9 @@
 
 #include "Component.hpp"
 
+namespace mtrs::comp
+{
+
 class Entity
 {
     uint64_t _id;
@@ -24,9 +27,10 @@ public:
     bool from_json(
         simdjson::ondemand::object &obj,
         std::string scene_name,
-        std::vector<DynamicBuffer> &dynamic_buffers);
+        std::vector<util::DynamicBuffer> &dynamic_buffers);
     bool to_file_mtscn(std::ofstream &file);
 };
 
+}
 
 #endif

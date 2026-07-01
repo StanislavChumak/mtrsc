@@ -1,5 +1,8 @@
 #include "util/string_optimizer.hpp"
 
+namespace mtrs::util
+{
+
 std::string stiring_optimizer(std::string str)
 {
     std::string result;
@@ -47,4 +50,6 @@ std::string stiring_optimizer(std::string str)
         }
     }
     return result;
+}
+
 }

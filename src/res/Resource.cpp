@@ -1,16 +1,19 @@
 #include "from_to_res.cpp"
 
-bool Resource::from_json(simdjson::ondemand::object &obj,
-    std::string &res_name, std::vector<DynamicBuffer> &dynamic_buffers)
+namespace mtrs::res
 {
-    uint64_t hash = hash_string(res_name);
+
+bool Resource::from_json(simdjson::ondemand::object &obj,
+    std::string &res_name, std::vector<util::DynamicBuffer> &dynamic_buffers)
+{
+    uint64_t hash = util::hash_string<uint64_t>(res_name);
     switch (hash)
     {
-#define X(res) case hash_c_string(#res):to_##res(obj, dynamic_buffers);break;
+#define X(res) case util::hash_c_string<u_int64_t>(#res):to_##res(obj, dynamic_buffers); break;
     RESOURCE_TYPE
 #undef X
     default:
-        LogSystem::print_err(LogSystem::args_to_str("There is no such resource as \"", res_name,'\"'));
+        MTRS_ERROR("There is no such resource as \"", res_name, '\"');
         return false;
     }
 
@@ -19,21 +22,15 @@ bool Resource::from_json(simdjson::ondemand::object &obj,
         std::cerr << "!= Resource of type \"" << res_name << "\" has no name =!" << std::endl;
     }
 
-    // if(_size == sizeof(_size)) 
-    // {
-    //     std::cerr << "!= Resource of type \"" << res_name << "\" was empty =!" << std::endl;
-    //     return false;
-    // }
-
     return true;
 }
 
 bool Resource::to_file_mtscn(std::ofstream &file)
 {
-    LOG_WRITE(file, _id, "\tres_id");
+    LOG_WRITE(file, 4, _id, "res_id");
 
-    file.write(reinterpret_cast<char*>(_date), _size);
-    LogSystem::print_parameter("\t  res_data", std::to_string(_size), _size, file.tellp());
+    file.write(reinterpret_cast<char*>(_data), _size);
+    util::parameter_message(6, "res_data", _size, _size, file.tellp());
 
     return true;
 }
@@ -44,8 +41,8 @@ Resource::Resource(Resource &&other) noexcept
     other._id = 0;
     _size = other._size;
     other._size = 0;
-    _date = other._date;
-    other._date = nullptr;
+    _data = other._data;
+    other._data = nullptr;
 }
 
 Resource &Resource::operator=(Resource &&other) noexcept
@@ -56,14 +53,16 @@ Resource &Resource::operator=(Resource &&other) noexcept
         other._id = 0;
         _size = other._size;
         other._size = 0;
-        _date = other._date;
-        other._date = nullptr;
+        _data = other._data;
+        other._data = nullptr;
     }
     return *this;
 }
 
 Resource::~Resource()
 {
-    free(_date);
-    _date = nullptr;
+    free(_data);
+    _data = nullptr;
+}
+
 }

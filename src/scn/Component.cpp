@@ -1,29 +1,31 @@
 #include "from_to_comp.cpp"
 
-#include "util/hash.hpp"
-#include "util/LogSystem.hpp"
+#include "util/mtrsc_message.hpp"
+
+namespace mtrs::comp
+{
 
 bool Component::from_json(
     simdjson::ondemand::object &obj,
     const std::string &name,
-    std::vector<DynamicBuffer> &dynamic_buffer)
+    std::vector<util::DynamicBuffer> &dynamic_buffer)
 {
     _name = name;
-    _id = hash_string(_name);
+    _id = util::hash_string<uint64_t>(_name);
     switch (_id)
     {
-#define X(comp) case hash_c_string(#comp):to_##comp(obj, dynamic_buffer);break;
+#define X(comp) case util::hash_c_string<uint64_t>(#comp):to_##comp(obj, dynamic_buffer);break;
     COMPONENT_TYPE
 #undef X
     default:
-        LogSystem::print_err(LogSystem::args_to_str("There is no such component as \"", name, "\""));
+        MTRS_ERROR("There is no such component as \"", name, "\"");
         return false;
         break;
     }
 
     if(_size == 0)
     {
-        LogSystem::print_err(LogSystem::args_to_str("Component of type \"", name, "\" was empty"));
+        MTRS_ERROR("Component of type \"", name, "\" was empty");
         return false;
     }
 
@@ -32,11 +34,12 @@ bool Component::from_json(
 
 bool Component::to_file_mtscn(std::ofstream &file)
 {
-    FILE_WRITE(file, _id);
-    LogSystem::print_parameter("\t  "+_name, std::to_string(_id), sizeof(_id), file.tellp());
+    file.write(reinterpret_cast<char*>(&_id), sizeof(_id));
+    util::parameter_message(6, _name, _id, sizeof(_id), file.tellp());
 
-    file.write(reinterpret_cast<char*>(_date), _size);
-    LogSystem::print_parameter("\t    comp_data", std::to_string(_size), _size, file.tellp());
+    file.write(reinterpret_cast<char*>(_data), _size);
+    util::parameter_message(8, "comp_data", _size, _size, file.tellp());
+    
     return true;
 }
 
@@ -46,8 +49,8 @@ Component::Component(Component &&other) noexcept
     other._id = 0;
     _size = other._size;
     other._size = 0;
-    _date = other._date;
-    other._date = nullptr;
+    _data = other._data;
+    other._data = nullptr;
     _name = std::move(other._name);
 }
 
@@ -59,8 +62,8 @@ Component &Component::operator=(Component &&other) noexcept
         other._id = 0;
         _size = other._size;
         other._size = 0;
-        _date = other._date;
-        other._date = nullptr;
+        _data = other._data;
+        other._data = nullptr;
         _name = std::move(other._name);
     }
     return *this;
@@ -68,6 +71,8 @@ Component &Component::operator=(Component &&other) noexcept
 
 Component::~Component()
 {
-    free(_date);
-    _date = nullptr;
+    free(_data);
+    _data = nullptr;
+}
+
 }

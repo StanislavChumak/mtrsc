@@ -2,8 +2,12 @@
 #define RESOURCE_PACK_HPP
 
 #include "ResourceType.hpp"
+#include "util/to_dynamic_data.hpp"
 
 #define HEADER_PACK_SIZE 8
+
+namespace mtrs::res
+{
 
 class ResourcePack
 {
@@ -11,10 +15,10 @@ class ResourcePack
     float _version = 0.f;
 
     std::vector<ResourceType> _resource_types;
-    std::vector<DynamicBuffer> _dynamic_buffers;
+    std::vector<util::DynamicBuffer> _dynamic_buffers;
     
     uint _size = 8;
-    uint64_t _dynamic_date_size = 0;
+    uint64_t _dynamic_data_size = 0;
 
 public:
     ResourcePack(float version);
@@ -28,5 +32,6 @@ public:
     bool to_file_mtrs(std::ofstream &file);
 };
 
+}
 
 #endif

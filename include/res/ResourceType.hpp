@@ -3,6 +3,9 @@
 
 #include "Resource.hpp"
 
+namespace mtrs::res
+{
+
 class ResourceType
 {
     std::string _name;
@@ -24,8 +27,10 @@ public:
     bool from_json(
         simdjson::ondemand::array &array,
         std::string &name,
-        std::vector<DynamicBuffer> &dynamic_buffer);
+        std::vector<util::DynamicBuffer> &dynamic_buffer);
     bool to_file_mtscn(std::ofstream &file);
 };
+
+}
 
 #endif

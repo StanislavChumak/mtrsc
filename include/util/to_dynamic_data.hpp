@@ -1,32 +1,41 @@
 #ifndef TO_DYNAMIC_DATA_HPP
 #define TO_DYNAMIC_DATA_HPP
 
-#include "util/DynamicBuffer.hpp"
 #include "util/from_json.hpp"
 #include <string>
 
-#include "dynamic_field.def"
+namespace mtrs::util
+{
+
+struct DynamicBuffer
+{
+    uint32_t* p_offset;
+    uint32_t size;
+    char *data;
+};
 
 #define IS_SET_FIELD(object, var, type_for_json, json_field) \
-if(!set_in_var_json<type_for_json>(var, json_field)) \
+if(!mtrs::util::set_in_var_json<type_for_json>(var, json_field)) \
     std::cerr << "!= " << #object << " failed to get required field: " << #json_field << std::endl
 
-#define SET_DYNAMIC_STRING(string, ptr, field, dynamic_date) \
-dynamic_date.push_back(string_to_dynamic_date(std::move(string), &ptr->field##_offset, ptr->field##_size))
+#define SET_DYNAMIC_STRING(string, ptr, field, dynamic_data) \
+dynamic_data.push_back(mtrs::util::string_to_dynamic_data(std::move(string), &ptr->field##_offset, ptr->field##_size))
 
-#define SET_DYNAMIC_ARRAY(array, type_array, type_for_json, ptr, field, dynamic_date) \
-dynamic_date.push_back(array_to_dynamic_date<type_array, type_for_json>(array, &ptr->field##_offset, ptr->field##_size))
+#define SET_DYNAMIC_ARRAY(array, type_array, type_for_json, ptr, field, dynamic_data) \
+dynamic_data.push_back(mtrs::util::array_to_dynamic_data<type_array, type_for_json>(array, &ptr->field##_offset, ptr->field##_size))
 
+#define SET_DYNAMIC_ARRAY_OF_ARRAY(array, width, type_array, type_for_json, ptr, field, dynamic_data) \
+dynamic_data.push_back(mtrs::util::array_of_array_to_dynamic_data<type_array, type_for_json>(array, width, &ptr->field##_offset, ptr->field##_size))
 
-DynamicBuffer string_to_dynamic_date(std::string str, uint32_t *offset, uint32_t &size);
+DynamicBuffer string_to_dynamic_data(std::string str, uint32_t *offset, uint32_t &size);
 
 template<typename T, typename TypeForJson = T>
-DynamicBuffer array_to_dynamic_date(simdjson::ondemand::array array, uint32_t *offset, uint32_t &size)
+DynamicBuffer array_to_dynamic_data(simdjson::ondemand::array &array, uint32_t *offset, uint32_t &size)
 {
-    size_t count = static_cast<uint32_t>(get_result_json<size_t>(array.count_elements()));
+    size_t count = get_result_json<size_t>(array.count_elements());
     size = static_cast<uint32_t>(sizeof(T) * count);
 
-    T *buffer =  new T[count];
+    T *buffer = new T[count];
 
     int i = 0;
     for(auto iter : array)
@@ -35,6 +44,34 @@ DynamicBuffer array_to_dynamic_date(simdjson::ondemand::array array, uint32_t *o
     }
 
     return {offset, size, reinterpret_cast<char*>(buffer)};
+}
+
+template<typename T, typename TypeForJson = T>
+DynamicBuffer array_of_array_to_dynamic_data(simdjson::ondemand::array &arr_arr, size_t width, uint32_t *offset, uint32_t &size)
+{
+    size_t count = get_result_json<size_t>(arr_arr.count_elements());
+    size = static_cast<uint32_t>(sizeof(T) * width * count);
+
+    T *buffer = new T[count * width];
+
+    simdjson::ondemand::array row;
+    size_t x = 0, y = 0;
+    for(auto element : arr_arr)
+    {
+        row = util::get_var_json<simdjson::ondemand::array>(element);
+
+        for(auto cell : row)
+        {
+            buffer[y * width + x] = static_cast<T>(get_var_json<TypeForJson>(cell));
+            x++;
+        }
+        x=0;
+        y++;
+    }
+
+    return {offset, size, reinterpret_cast<char*>(buffer)};
+}
+
 }
 
 #endif
