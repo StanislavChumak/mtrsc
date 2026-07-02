@@ -1,5 +1,7 @@
 #include "from_to_res.cpp"
 
+#include <fstream>
+
 namespace mtrs::res
 {
 

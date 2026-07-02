@@ -6,14 +6,10 @@
 #include "util/hash.hpp"
 #include "util/mtrsc_message.hpp"
 
-#include <fstream>
-
 #include "dynamic_field.def"
 
 namespace mtrs::res
 {
-
-std::string shader_path_to_string(std::string path);
 
 void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
@@ -29,33 +25,11 @@ void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<util::Dyn
     IS_SET_FIELD(Shader_rs, name, std::string_view, obj["name"]);
     IS_SET_FIELD(Shader_rs, vertex, std::string_view, obj["vertex"]);
     IS_SET_FIELD(Shader_rs, fragment, std::string_view, obj["fragment"]);
-
-    vertex = shader_path_to_string(std::move(vertex));
-    fragment = shader_path_to_string(std::move(fragment));
     
     SET_DYNAMIC_STRING(vertex, res, vertex, dynamic_buffers);
     SET_DYNAMIC_STRING(fragment, res, fragment, dynamic_buffers);
 
     _id = util::hash_string<uint64_t>(name);
-}
-
-std::string shader_path_to_string(std::string path)
-{
-    std::ifstream shader;
-    std::string buffer;
-
-    shader.open(path, std::ios::ate | std::ios::binary);
-    if (!shader.is_open())
-    {
-        util::mtrsc_message(util::TypeMessage::ERROR ,"Failed to open shader: ", path);
-        return "";
-    }
-    buffer.resize(shader.tellg());
-    shader.seekg(0);
-
-    shader.read(buffer.data(), buffer.size());
-
-    return util::stiring_optimizer(std::move(buffer));
 }
 
 void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)

@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME}
     src/util/string_optimizer.cpp
     src/util/to_dynamic_data.cpp
     src/util/mtrsc_message.cpp
+    src/util/sourse_to_desp_files.cpp
 
     src/scn/Scene.cpp
     src/scn/Entity.cpp
@@ -30,7 +31,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/external/struct
+        ${PROJECT_SOURCE_DIR}/external/mtrsstruct
 )
 
 add_subdirectory(external/simdjson)
