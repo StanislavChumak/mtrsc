@@ -2,6 +2,8 @@
 #include "util/from_json.hpp"
 #include "util/mtrsc_message.hpp"
 
+#include <filesystem>
+
 int main(int argc, char **argv)
 {
     if(argc < 2)

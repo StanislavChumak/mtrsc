@@ -11,6 +11,23 @@
 namespace mtrs::res
 {
 
+void Resource::to_scripts(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
+{
+#include "res_struct/ScriptFile.struct"
+    _size = sizeof(ScriptFile_sc);
+    _data = malloc(_size);
+    ScriptFile_sc *res = static_cast<ScriptFile_sc*>(_data);
+
+    std::string name;
+    std::string path;
+
+    IS_SET_FIELD(ScriptFile_sc, name, std::string_view, obj["name"]);
+    _id = util::hash_string<uint64_t>(std::move(name));
+
+    IS_SET_FIELD(ScriptFile_sc, path, std::string_view, obj["path"]);
+    SET_DYNAMIC_STRING(path, res, path, dynamic_buffers);
+}
+
 void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
 #include "res_struct/Shader.struct"
@@ -23,13 +40,13 @@ void Resource::to_shaders(simdjson::ondemand::object &obj, std::vector<util::Dyn
     std::string fragment;
 
     IS_SET_FIELD(Shader_rs, name, std::string_view, obj["name"]);
-    IS_SET_FIELD(Shader_rs, vertex, std::string_view, obj["vertex"]);
-    IS_SET_FIELD(Shader_rs, fragment, std::string_view, obj["fragment"]);
-    
-    SET_DYNAMIC_STRING(vertex, res, vertex, dynamic_buffers);
-    SET_DYNAMIC_STRING(fragment, res, fragment, dynamic_buffers);
+    _id = util::hash_string<uint64_t>(std::move(name));
 
-    _id = util::hash_string<uint64_t>(name);
+    IS_SET_FIELD(Shader_rs, vertex, std::string_view, obj["vertex"]);
+    SET_DYNAMIC_STRING(vertex, res, vertex, dynamic_buffers);
+
+    IS_SET_FIELD(Shader_rs, fragment, std::string_view, obj["fragment"]);
+    SET_DYNAMIC_STRING(fragment, res, fragment, dynamic_buffers);
 }
 
 void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
@@ -43,11 +60,10 @@ void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<util::Dy
     std::string path;
 
     IS_SET_FIELD(Texture_rs, name, std::string_view, obj["name"]);
+    _id = util::hash_string<uint64_t>(std::move(name));
+
     IS_SET_FIELD(Texture_rs, path, std::string_view, obj["path"]);
-
     SET_DYNAMIC_STRING(path, res , path, dynamic_buffers);
-
-    _id = util::hash_string<uint64_t>(name);
 }
 
 void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
@@ -60,13 +76,12 @@ void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<util::Dyn
     std::string name;
 
     IS_SET_FIELD(TextureAtlas_rs, name, std::string_view, obj["name"]);
+    _id = util::hash_string<uint64_t>(std::move(name));
     
     IS_SET_FIELD(TextureAtlas_rs, res->width, uint64_t, obj["width"]);
     IS_SET_FIELD(TextureAtlas_rs, res->height, uint64_t, obj["height"]);
     IS_SET_FIELD(TextureAtlas_rs, res->sub_width, uint64_t, obj["sub_width"]);
     IS_SET_FIELD(TextureAtlas_rs, res->sub_height, uint64_t, obj["sub_height"]);
-    
-    _id = util::hash_string<uint64_t>(name);
 }
 
 void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
@@ -80,6 +95,7 @@ void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<util::Dyna
     std::string path;
 
     IS_SET_FIELD(Sound_sc, name, std::string_view, obj["name"]);
+    _id = util::hash_string<uint64_t>(std::move(name));
 
     IS_SET_FIELD(Sound_sc, path, std::string_view, obj["path"]);
     SET_DYNAMIC_STRING(path, res , path, dynamic_buffers);
@@ -98,15 +114,13 @@ void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<util::Dyna
     {
         res->flag |= (uint32_t)flags[i] << i;
     }
-
-    _id = util::hash_string<uint64_t>(name);
 }
 
 void Resource::to_render_context(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
     std::string name;
     IS_SET_FIELD(RenderContext, name, std::string_view, obj["name"]);
-    _id = util::hash_string<uint64_t>(name);
+    _id = util::hash_string<uint64_t>(std::move(name));
 }
 
 }

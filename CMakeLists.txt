@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     src/util/to_dynamic_data.cpp
     src/util/mtrsc_message.cpp
     src/util/sourse_to_desp_files.cpp
+    src/util/build_scripts.cpp
 
     src/scn/Scene.cpp
     src/scn/Entity.cpp
@@ -26,13 +27,19 @@ add_executable(${PROJECT_NAME}
     src/res/ResourcePack.cpp
     src/res/ResourceType.cpp
     src/res/Resource.cpp
+
 )
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/external/mtrsstruct
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/external/mtrsstruct
 )
 
 add_subdirectory(external/simdjson)
 target_link_libraries(${PROJECT_NAME} PUBLIC simdjson)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts_build"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/scripts_build"
+)

@@ -4,6 +4,7 @@
 #include "res/ResourcePack.hpp"
 
 #include "util/from_json.hpp"
+#include "util/build_scripts.hpp"
 #include "util/mtrsc_message.hpp"
 
 #include <fstream>
@@ -83,6 +84,8 @@ void copy_and_transform_directory(const std::filesystem::path &source_dir, const
         }
     }
 
+    std::vector<util::ScriptEntry> scripts;
+
     for (const auto& entry : fs::recursive_directory_iterator(source_dir))
     {
         const fs::path& src_path = entry.path();
@@ -98,11 +101,22 @@ void copy_and_transform_directory(const std::filesystem::path &source_dir, const
         {
             json_to_mtrsfile(src_path, dest_path);
         }
+        else if(ext == ".cpp")
+        {
+            scripts.push_back({
+                src_path.stem().string(),
+                src_path,
+                dest_path.parent_path()
+            });
+        }
         else
         {
             fs::copy_file(src_path, dest_path, fs::copy_options::overwrite_existing);
         }
     }
+
+    util::write_generated_cmake(scripts);
+    util::build_all_scripts();
 }
 
 }

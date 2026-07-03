@@ -11,6 +11,19 @@
 namespace mtrs::comp
 {
 
+void Component::to_Script(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
+{
+#include "comp_struct/Script.struct"
+    _size = sizeof(Script_sc);
+    _data = malloc(_size);
+    Script_sc *comp = static_cast<Script_sc*>(_data);
+
+    std::string script_file;
+
+    IS_SET_FIELD(Script_sc, script_file, std::string_view, obj["script_file"]);
+    SET_DYNAMIC_STRING(script_file, comp, script_file, dynamic_buffers);
+}
+
 void Component::to_Transform(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
 #include "comp_struct/Transform.struct"
@@ -70,8 +83,8 @@ void Component::to_Animator(simdjson::ondemand::object &obj, std::vector<util::D
     Animator_sc *comp = static_cast<Animator_sc*>(_data);
 
     simdjson::ondemand::array durations;
-    IS_SET_FIELD(Animator_sc, durations, simdjson::ondemand::array, obj["durations"]);
 
+    IS_SET_FIELD(Animator_sc, durations, simdjson::ondemand::array, obj["durations"]);
     SET_DYNAMIC_ARRAY(durations, float, double, comp, durations, dynamic_buffers);
 }
 
@@ -180,6 +193,7 @@ void Component::to_SoundPlayer(simdjson::ondemand::object &obj, std::vector<util
     SoundPlayer_sc *comp = static_cast<SoundPlayer_sc*>(_data);
 
     std::string sound;
+
     IS_SET_FIELD(SoundPlayer_sc, sound, std::string_view, obj["sound"]);
     SET_DYNAMIC_STRING(sound, comp, sound, dynamic_buffers);
 
