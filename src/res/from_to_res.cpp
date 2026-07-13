@@ -64,6 +64,9 @@ void Resource::to_textures(simdjson::ondemand::object &obj, std::vector<util::Dy
 
     IS_SET_FIELD(Texture_rs, path, std::string_view, obj["path"]);
     SET_DYNAMIC_STRING(path, res , path, dynamic_buffers);
+
+    res->max_instances = 1000;
+    util::set_in_var_json<int64_t>(res->max_instances, obj["max_instances"]);
 }
 
 void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
@@ -82,6 +85,9 @@ void Resource::to_atlases(simdjson::ondemand::object &obj, std::vector<util::Dyn
     IS_SET_FIELD(TextureAtlas_rs, res->height, uint64_t, obj["height"]);
     IS_SET_FIELD(TextureAtlas_rs, res->sub_width, uint64_t, obj["sub_width"]);
     IS_SET_FIELD(TextureAtlas_rs, res->sub_height, uint64_t, obj["sub_height"]);
+
+    res->spirality = false;
+    util::set_in_var_json<bool>(res->spirality, obj["spirality"]);
 }
 
 void Resource::to_sounds(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)

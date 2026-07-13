@@ -11,16 +11,29 @@
 namespace mtrs::comp
 {
 
-void Component::to_Script(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
+void Component::to_ScriptUpdate(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
 {
-#include "comp_struct/Script.struct"
-    _size = sizeof(Script_sc);
+#include "comp_struct/ScriptUpdate.struct"
+    _size = sizeof(ScriptUpdate_sc);
     _data = malloc(_size);
-    Script_sc *comp = static_cast<Script_sc*>(_data);
+    ScriptUpdate_sc *comp = static_cast<ScriptUpdate_sc*>(_data);
 
     std::string script_file;
 
-    IS_SET_FIELD(Script_sc, script_file, std::string_view, obj["script_file"]);
+    IS_SET_FIELD(ScriptUpdate_sc, script_file, std::string_view, obj["script_file"]);
+    SET_DYNAMIC_STRING(script_file, comp, script_file, dynamic_buffers);
+}
+
+void Component::to_ScriptCallback(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
+{
+#include "comp_struct/ScriptCallback.struct"
+    _size = sizeof(ScriptCallback_sc);
+    _data = malloc(_size);
+    ScriptCallback_sc *comp = static_cast<ScriptCallback_sc*>(_data);
+
+    std::string script_file;
+
+    IS_SET_FIELD(ScriptCallback_sc, script_file, std::string_view, obj["script_file"]);
     SET_DYNAMIC_STRING(script_file, comp, script_file, dynamic_buffers);
 }
 
@@ -166,7 +179,7 @@ void Component::to_SpriteMap(simdjson::ondemand::object &obj, std::vector<util::
     SET_DYNAMIC_ARRAY(types, uint32_t, uint64_t, comp, cell_types, dynamic_buffers);
 
     IS_SET_FIELD(SpriteMap_sc, cells, simdjson::ondemand::array, obj["cells"]);
-    SET_DYNAMIC_ARRAY_OF_ARRAY(cells, 3, uint32_t, uint64_t, comp, cell_map, dynamic_buffers);
+    SET_DYNAMIC_ARRAY_OF_ARRAY(cells, 3, int32_t, int64_t, comp, cell_map, dynamic_buffers);
 }
 
 void Component::to_MapAnimator(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
@@ -198,16 +211,6 @@ void Component::to_SoundPlayer(simdjson::ondemand::object &obj, std::vector<util
     SET_DYNAMIC_STRING(sound, comp, sound, dynamic_buffers);
 
     util::set_in_var_json<double>(comp->volume, obj["volume"]);
-}
-
-void Component::to_CursorFollower(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
-{
-#include "comp_struct/CursorFollower.struct"
-    _size = sizeof(CursorFollower_sc);
-    _data = malloc(_size);
-    CursorFollower_sc *comp = static_cast<CursorFollower_sc*>(_data);
-    comp->offset_pos_x = 0; util::set_in_var_json<int64_t>(comp->offset_pos_x, obj["offset_x"]);
-    comp->offset_pos_y = 0; util::set_in_var_json<int64_t>(comp->offset_pos_y, obj["offset_y"]);
 }
 
 }

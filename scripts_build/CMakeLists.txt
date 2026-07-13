@@ -4,12 +4,12 @@ project(mtrs_scripts)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/engine_api_include_dir.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/engine_dir.cmake")
+add_subdirectory(${EXTERNAL_INCLUDE_DIR}/glm glm)
 
 function(add_script_module name source dest)
     add_library(${name} MODULE ${source})
-    target_include_directories(${name} PRIVATE ${EXTERNAL_INCLUDE_DIR} ${ENGINE_API_INCLUDE_DIR})
-    add_subdirectory(${EXTERNAL_INCLUDE_DIR}/glm glm)
+    target_include_directories(${name} PRIVATE ${EXTERNAL_INCLUDE_DIR}/mtrsstruct ${EXTERNAL_INCLUDE_DIR}/single-files ${ENGINE_DIR}/include)
     target_link_libraries(${name} PRIVATE glm)
     set_target_properties(${name} PROPERTIES
         PREFIX ""

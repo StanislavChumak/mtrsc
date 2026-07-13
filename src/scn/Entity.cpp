@@ -43,8 +43,9 @@ bool Entity::from_json(
         MTRS_ERROR("The entity is empty");
         return false;
     }
-    _id = util::hash_string<uint64_t>(scene_name);
-    _id = util::hash_string<uint64_t>(_name, _id);
+
+    _id = util::hash_string<uint64_t>(_name);
+    
     return true;
 }
 
