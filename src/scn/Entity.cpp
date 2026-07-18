@@ -35,12 +35,12 @@ bool Entity::from_json(
 
     if(_name == "")
     {
-        MTRS_ERROR("The entity has no \"Name\"");
+        util::mtrsc_error("The entity has no \"Name\"");
         return false;
     }
     if(_size == sizeof(_id) * 2)
     {
-        MTRS_ERROR("The entity is empty");
+        util::mtrsc_error("The entity is empty");
         return false;
     }
 

@@ -7,7 +7,7 @@
 #define TYPE_MESSAGE \
 X(ERROR) \
 X(WARNING) \
-X(LOG)
+X(INFO)
 
 #define LOG_WRITE(file, offset, param, name) \
 file.write(reinterpret_cast<char*>(&param), sizeof(param)); \
@@ -28,8 +28,8 @@ enum class FlagMessage
 {
     SKIP_ERROR,
     SKIP_WARNING,
-    PRINT_LOG,
-    DETAIL_LOG
+    PRINT_INFO,
+    DETAIL_INFO
 };
 
 namespace detail
@@ -38,8 +38,8 @@ namespace detail
     {
         bool skip_error = false;
         bool skip_warning = false;
-        bool print_log = false;
-        bool detail_log = false;
+        bool print_info = false;
+        bool detail_info = false;
     };
     inline MessegeConfig _config;
     void show_message(TypeMessage tmsg, std::string&& message);
@@ -47,33 +47,31 @@ namespace detail
 
 void flag_message(FlagMessage flag);
 
-#define MTRS_ERROR(...) mtrs::util::mtrsc_message(mtrs::util::TypeMessage::ERROR, __VA_ARGS__)
-
 template<typename... Args>
 void mtrsc_message(TypeMessage tmsg, Args&&... args)
 {
     std::stringstream ss;
-    switch (tmsg)
-    {
-    case TypeMessage::ERROR:
-        if(detail::_config.skip_error) return;
-        ss << "ERROR: ";
-        break;
-    case TypeMessage::WARNING:
-        if(detail::_config.skip_warning) return;
-        ss << "WARNING: ";
-        break;
-    case TypeMessage::LOG:
-        if(!detail::_config.print_log) return;
-        ss << "LOG: ";
-        break;
-    default:
-        ss << "UNKNOWN: ";
-        break;
-    }
     ((ss << std::forward<Args>(args)), ...) << std::endl;
 
     detail::show_message(tmsg, ss.str());
+}
+
+template<typename... Args>
+void mtrsc_error(Args&&... args)
+{
+    mtrsc_message(TypeMessage::ERROR, args...);
+}
+
+template<typename... Args>
+void mtrsc_warning(Args&&... args)
+{
+    mtrsc_message(TypeMessage::WARNING, args...);
+}
+
+template<typename... Args>
+void mtrsc_info(Args&&... args)
+{
+    mtrsc_message(TypeMessage::INFO, args...);
 }
 
 template<typename T>
@@ -91,23 +89,23 @@ bool verification_message(std::string name, const T &check, const T &due)
 template<typename T>
 void parameter_message(size_t offset, std::string name, T var, size_t size, size_t current_pos)
 {
-    if(detail::_config.detail_log)
+    if(detail::_config.detail_info)
     {
-        mtrsc_message(TypeMessage::LOG, '[', std::right, std::setw(4), (current_pos - size), '-',
+        mtrsc_message(TypeMessage::INFO, '[', std::right, std::setw(4), (current_pos - size), '-',
             std::left, std::setw(4), current_pos, "] ", std::string(offset, ' '), name, '[', var, ']');
     }
     else
     {
-        mtrsc_message(TypeMessage::LOG, std::string(offset, ' '), name, '[', var, ']');
+        mtrsc_message(TypeMessage::INFO, std::string(offset, ' '), name, '[', var, ']');
     }
 }
 
 template<typename T>
 void variable_message(size_t offset, std::string name, T var)
 {
-    if(detail::_config.detail_log)
+    if(detail::_config.detail_info)
     {
-        mtrsc_message(TypeMessage::LOG, "[    -    ] ", std::string(offset, ' '), name, '[', var, ']');
+        mtrsc_message(TypeMessage::INFO, "[    -    ] ", std::string(offset, ' '), name, '[', var, ']');
     }
 }
 

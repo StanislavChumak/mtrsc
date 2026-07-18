@@ -16,38 +16,40 @@ namespace fs = std::filesystem;
 namespace mtrs::util
 {
 
-void json_to_scene(simdjson::ondemand::array &json_scene, const std::string &desp_file_name)
+bool json_to_scene(simdjson::ondemand::array &json_scene, const std::string &desp_file_name)
 {
     mtrs::comp::Scene scene{VERSION};
-    if(!scene.from_json(json_scene, desp_file_name)) return;
+    if(!scene.from_json(json_scene, desp_file_name)) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);
     output_file.seekp(0, std::ios::beg);
     if(!output_file)
     {
-        MTRS_ERROR("Failed to create file: ", desp_file_name);
-        return;
+        util::mtrsc_error("Failed to create file: ", desp_file_name);
+        return false;
     }
     scene.to_file_mtsc(output_file);
 
     output_file.close();
+    return true;
 }
 
-void json_to_pack(simdjson::ondemand::object &json_pack, const std::string &desp_file_name)
+bool json_to_pack(simdjson::ondemand::object &json_pack, const std::string &desp_file_name)
 {
     mtrs::res::ResourcePack pack{VERSION};
-    if(!pack.from_json(json_pack, desp_file_name)) return;
+    if(!pack.from_json(json_pack, desp_file_name)) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);
     output_file.seekp(0, std::ios::beg);
     if(!output_file)
     {
-        MTRS_ERROR("Failed to create file: ", desp_file_name);
-        return;
+        util::mtrsc_error("Failed to create file: ", desp_file_name);
+        return false;
     }
     pack.to_file_mtrs(output_file);
 
     output_file.close();
+    return true;
 }
 
 void json_to_mtrsfile(std::string json_path, const std::string &desp_file_name)
@@ -59,18 +61,13 @@ void json_to_mtrsfile(std::string json_path, const std::string &desp_file_name)
 
     simdjson::ondemand::array json_scene;
     simdjson::ondemand::object json_pack;
-    if(mtrs::util::set_in_var_json<simdjson::ondemand::array>(json_scene, doc["scene"]))
+    if ((!mtrs::util::set_in_var_json<simdjson::ondemand::object>(json_pack, doc["pack"]) ||
+        !json_to_pack(json_pack, desp_file_name.substr(0, desp_file_name.length() - 5) + ".mtpck")) &
+        (!mtrs::util::set_in_var_json<simdjson::ondemand::array>(json_scene, doc["scene"]) ||
+        !json_to_scene(json_scene, desp_file_name.substr(0, desp_file_name.length() - 5) + ".mtscn")))
     {
-        json_to_scene(json_scene, desp_file_name.substr(0, desp_file_name.length() - 5) + ".mtscn");
-    }
-    else if(mtrs::util::set_in_var_json<simdjson::ondemand::object>(json_pack, doc["pack"]))
-    {
-        json_to_pack(json_pack, desp_file_name.substr(0, desp_file_name.length() - 5) + ".mtpck");
-    }
-    else
-    {
-        MTRS_ERROR("Json file is not in the correct format\n",
-            "\"scene\" and \"pack\" were not found in the json");
+        util::mtrsc_error("Json file[", json_pack,"] is not in the correct format\n"
+            "for a \"scene\" or \"pack\"");
     }
 }
 
@@ -80,7 +77,7 @@ void copy_and_transform_directory(const std::filesystem::path &source_dir, const
     {
         if (!fs::create_directories(desp_dir))
         {
-            MTRS_ERROR("Failed to create folder: ", desp_dir);
+            util::mtrsc_error("Failed to create folder: ", desp_dir);
         }
     }
 

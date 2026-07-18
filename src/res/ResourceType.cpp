@@ -26,7 +26,7 @@ bool ResourceType::from_json(simdjson::ondemand::array &array,
 
     if(_resources.empty())
     {
-        MTRS_ERROR("The ResourceType \"", name, "\" is empty");
+        util::mtrsc_error("The ResourceType \"", name, "\" is empty");
         return false;
     }
     

@@ -15,7 +15,7 @@ bool Resource::from_json(simdjson::ondemand::object &obj,
     RESOURCE_TYPE
 #undef X
     default:
-        MTRS_ERROR("There is no such resource as \"", res_name, '\"');
+        util::mtrsc_error("There is no such resource as \"", res_name, '\"');
         return false;
     }
 

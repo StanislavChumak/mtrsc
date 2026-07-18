@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 {
     if(argc < 2)
     {
-        MTRS_ERROR("No arguments");
+        mtrs::util::mtrsc_error("No arguments");
         return 0;
     }
 
@@ -22,12 +22,12 @@ int main(int argc, char **argv)
             
             if(arg == "-log")
             {
-                mtrs::util::flag_message(mtrs::util::FlagMessage::PRINT_LOG);
+                mtrs::util::flag_message(mtrs::util::FlagMessage::PRINT_INFO);
             }
             else if(arg == "-det-log")
             {
-                mtrs::util::flag_message(mtrs::util::FlagMessage::PRINT_LOG);
-                mtrs::util::flag_message(mtrs::util::FlagMessage::DETAIL_LOG);
+                mtrs::util::flag_message(mtrs::util::FlagMessage::PRINT_INFO);
+                mtrs::util::flag_message(mtrs::util::FlagMessage::DETAIL_INFO);
             }
         }
     }

@@ -34,7 +34,7 @@ bool build_all_scripts()
 
     if (std::system(configure_cmd.str().c_str()) != 0)
     {
-        MTRS_ERROR("CMake configure failed for scripts");
+        util::mtrsc_error("CMake configure failed for scripts");
         return false;
     }
 
@@ -45,7 +45,7 @@ bool build_all_scripts()
 
     if (std::system(build_cmd.str().c_str()) != 0)
     {
-        MTRS_ERROR("CMake build failed for scripts");
+        util::mtrsc_error("CMake build failed for scripts");
         return false;
     }
     return true;

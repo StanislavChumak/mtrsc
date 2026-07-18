@@ -18,14 +18,14 @@ bool Component::from_json(
     COMPONENT_TYPE
 #undef X
     default:
-        MTRS_ERROR("There is no such component as \"", name, "\"");
+        util::mtrsc_error("There is no such component as \"", name, "\"");
         return false;
         break;
     }
 
     if(_size == 0)
     {
-        MTRS_ERROR("Component of type \"", name, "\" was empty");
+        util::mtrsc_error("Component of type \"", name, "\" was empty");
         return false;
     }
 

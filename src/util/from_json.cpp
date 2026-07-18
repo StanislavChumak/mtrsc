@@ -60,17 +60,20 @@ simdjson::padded_string preprocess_json(const std::string& path,
     while (std::getline(file, line))
     {
         line.erase(0, line.find_first_not_of(" \t"));
-
+        
         if (line.rfind("\"#define", 0) == 0)
         {
-            std::istringstream iss(line);
-            std::string define, macros, value;
-            iss >> define >> macros >> value;
+            line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end()); 
+
+            std::size_t pos = line.find(':');
+            std::string macros, value;
+            macros = line.substr(8, line.rfind('"', pos) - 8);
+            value = line.substr(pos+1, line.find_last_not_of(',') - pos);
             defines[macros] = value;
             continue;
         }
 
-        if (line.rfind("#include", 0) == 0)
+        if (line.rfind("\"#include", 0) == 0)
         {
             std::string include_path;
             size_t start = line.find('"') + 1;

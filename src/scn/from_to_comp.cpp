@@ -82,7 +82,9 @@ void Component::to_Sprite(simdjson::ondemand::object &obj, std::vector<util::Dyn
         uint8_t rgba[4];
         uint8_t i = 0;
         for(auto iter : color_array)
+        {
             rgba[i++] = static_cast<uint8_t>(util::get_var_json<uint64_t>(iter));
+        }
         
         memcpy(&comp->color, rgba, sizeof(uint32_t));
     }

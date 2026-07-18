@@ -21,7 +21,7 @@ bool Scene::from_json(simdjson::ondemand::array &json_scene, std::string name)
 
     if(_entities.empty())
     {
-        MTRS_ERROR("The Scene is empty. It is not compiled");
+        util::mtrsc_error("The Scene is empty. It is not compiled");
         return false;
     }
 
@@ -50,7 +50,7 @@ bool Scene::to_file_mtsc(std::ofstream &file)
     // Header
     file.write(_magic, sizeof(_magic));
     file.write(reinterpret_cast<char*>(&_version), sizeof(_version));
-    util::parameter_message(0,"header", _version, 8, file.tellp());
+    util::parameter_message(0, "header", std::to_string(_version) + " scene", 8, file.tellp());
 
     LOG_WRITE(file, 0, _entity_count, "entity_cout");
     LOG_WRITE(file, 0, _entity_offset, "entity_offset");

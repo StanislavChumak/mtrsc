@@ -26,7 +26,7 @@ bool ResourcePack::from_json(simdjson::ondemand::object &pack_json, std::string 
 
     if(_resource_types.empty())
     {
-        MTRS_ERROR("The ResourcePack \"", name, "\" is empty =!");
+        util::mtrsc_error("The ResourcePack \"", name, "\" is empty =!");
         return false;
     }
 
@@ -51,7 +51,7 @@ bool ResourcePack::to_file_mtrs(std::ofstream &file)
     // Header
     file.write(_magic, sizeof(_magic));
     file.write(reinterpret_cast<char*>(&_version), sizeof(_version));
-    util::parameter_message(0, "header", _version, 8, file.tellp());
+    util::parameter_message(0, "header", std::to_string(_version) + " pack", 8, file.tellp());
 
     // Resources
     util::variable_message(0, "resource_types", _resource_types.size());

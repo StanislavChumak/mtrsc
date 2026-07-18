@@ -27,7 +27,7 @@ T1 get_result_json(T2 result)
 {
     if(result.error())
     {
-        MTRS_ERROR("Fatal error find ", typeid(T1).name(), '\n',
+        util::mtrsc_error("Fatal error find ", typeid(T1).name(), '\n',
             "Error: ", simdjson::error_message(result.error()));
     }
     return result.value();
