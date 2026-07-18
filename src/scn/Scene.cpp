@@ -49,8 +49,7 @@ bool Scene::to_file_mtsc(std::ofstream &file)
 
     // Header
     file.write(_magic, sizeof(_magic));
-    file.write(reinterpret_cast<char*>(&_version), sizeof(_version));
-    util::parameter_message(0, "header", std::to_string(_version) + " scene", 8, file.tellp());
+    util::parameter_message(0, "header", _magic, 8, file.tellp());
 
     LOG_WRITE(file, 0, _entity_count, "entity_cout");
     LOG_WRITE(file, 0, _entity_offset, "entity_offset");
@@ -89,16 +88,10 @@ bool Scene::to_file_mtsc(std::ofstream &file)
     return true;
 }
 
-Scene::Scene(float version)
-: _version(version)
-{}
-
 Scene::Scene(Scene &&other) noexcept
 {
     _entity_count = other._entity_count;
     other._entity_count = 0;
-    _version = other._version;
-    other._version = 0.f;
 
     _free_for_dynamic_data_offset = other._free_for_dynamic_data_offset;
     other._free_for_dynamic_data_offset = 0;
@@ -115,8 +108,6 @@ Scene &Scene::operator=(Scene &&other) noexcept
     {
         _entity_count = other._entity_count;
         other._entity_count = 0;
-        _version = other._version;
-        other._version = 0.f;
 
         _free_for_dynamic_data_offset = other._free_for_dynamic_data_offset;
         other._free_for_dynamic_data_offset = 0;

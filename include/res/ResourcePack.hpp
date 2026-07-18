@@ -11,8 +11,7 @@ namespace mtrs::res
 
 class ResourcePack
 {
-    const char _magic[4] = {'m','t','r','s'};
-    float _version = 0.f;
+    const char _magic[8] = "mtrspck";
 
     std::vector<ResourceType> _resource_types;
     std::vector<util::DynamicBuffer> _dynamic_buffers;
@@ -21,7 +20,7 @@ class ResourcePack
     uint64_t _dynamic_data_size = 0;
 
 public:
-    ResourcePack(float version);
+    ResourcePack() = default;
     ResourcePack(ResourcePack &) = delete;
     ResourcePack &operator=(const ResourcePack &) = delete;
     ResourcePack(ResourcePack &&other) noexcept;

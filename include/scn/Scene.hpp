@@ -12,8 +12,7 @@ namespace mtrs::comp
 
 class Scene
 {
-    const char _magic[4] = {'m','t','s','c'};
-    float _version;
+    const char _magic[8] = "mtrsscn";
 
     uint32_t _entity_count = 0;
     uint32_t _entity_offset = HEADER_SCENE_SIZE;
@@ -27,7 +26,7 @@ class Scene
     uint64_t _entities_size = 0;
 
 public:
-    Scene(float version);
+    Scene() = default;
     Scene(Scene &) = delete;
     Scene &operator=(const Scene &) = delete;
     Scene(Scene &&other) noexcept;

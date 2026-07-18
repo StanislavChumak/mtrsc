@@ -9,8 +9,6 @@
 
 #include <fstream>
 
-#define VERSION 1.7f
-
 namespace fs = std::filesystem;
 
 namespace mtrs::util
@@ -18,7 +16,7 @@ namespace mtrs::util
 
 bool json_to_scene(simdjson::ondemand::array &json_scene, const std::string &desp_file_name)
 {
-    mtrs::comp::Scene scene{VERSION};
+    mtrs::comp::Scene scene;
     if(!scene.from_json(json_scene, desp_file_name)) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);
@@ -36,7 +34,7 @@ bool json_to_scene(simdjson::ondemand::array &json_scene, const std::string &des
 
 bool json_to_pack(simdjson::ondemand::object &json_pack, const std::string &desp_file_name)
 {
-    mtrs::res::ResourcePack pack{VERSION};
+    mtrs::res::ResourcePack pack;
     if(!pack.from_json(json_pack, desp_file_name)) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);

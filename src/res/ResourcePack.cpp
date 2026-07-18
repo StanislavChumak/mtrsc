@@ -50,8 +50,7 @@ bool ResourcePack::to_file_mtrs(std::ofstream &file)
 
     // Header
     file.write(_magic, sizeof(_magic));
-    file.write(reinterpret_cast<char*>(&_version), sizeof(_version));
-    util::parameter_message(0, "header", std::to_string(_version) + " pack", 8, file.tellp());
+    util::parameter_message(0, "header", _magic, 8, file.tellp());
 
     // Resources
     util::variable_message(0, "resource_types", _resource_types.size());
@@ -75,15 +74,8 @@ bool ResourcePack::to_file_mtrs(std::ofstream &file)
     return true;
 }
 
-ResourcePack::ResourcePack(float version)
-: _version(version)
-{}
-
 ResourcePack::ResourcePack(ResourcePack &&other) noexcept
 {
-    _version = other._version;
-    other._version = 0.f;
-
     _resource_types = std::move(other._resource_types);
     _dynamic_buffers = std::move(other._dynamic_buffers);
 }
@@ -92,8 +84,6 @@ ResourcePack &ResourcePack::operator=(ResourcePack &&other) noexcept
 {
     if(this != &other)
     {
-        _version = other._version;
-        other._version = 0.f;
         _resource_types = std::move(other._resource_types);
         _dynamic_buffers = std::move(other._dynamic_buffers);
     }
