@@ -57,21 +57,20 @@ void Component::to_Sprite(simdjson::ondemand::object &obj, std::vector<util::Dyn
     _data = malloc(_size);
     Sprite_sc *comp = static_cast<Sprite_sc*>(_data);
 
-    std::string shader;
-    std::string texture;
-    std::string atlas = "";
+    std::string str;
     comp->layer = 0.f;
     comp->color = 4294967295u;
 
-    IS_SET_FIELD(Sprite_sc, shader, std::string_view, obj["shader"]);
-    SET_DYNAMIC_STRING(shader, comp, shader, dynamic_buffers);
+    IS_SET_FIELD(Sprite_sc, str, std::string_view, obj["shader"]);
+    SET_DYNAMIC_STRING(str, comp, shader, dynamic_buffers);
 
-    IS_SET_FIELD(Sprite_sc, texture, std::string_view, obj["texture"]);
-    SET_DYNAMIC_STRING(texture, comp, texture, dynamic_buffers);
+    IS_SET_FIELD(Sprite_sc, str, std::string_view, obj["texture"]);
+    SET_DYNAMIC_STRING(str, comp, texture, dynamic_buffers);
     
-    util::set_in_var_json<std::string_view>(atlas, obj["atlas"]);
+    util::set_in_var_json<std::string_view>(str, obj["atlas"], "");
+    SET_DYNAMIC_STRING(str, comp, atlas, dynamic_buffers);
+
     util::set_in_var_json<double>(comp->layer, obj["layer"]);
-    SET_DYNAMIC_STRING(atlas, comp, atlas, dynamic_buffers);
     
     IS_SET_FIELD(Sprite_sc, comp->size_x, uint64_t, obj["size_x"]);
     IS_SET_FIELD(Sprite_sc, comp->size_y, uint64_t, obj["size_y"]);
@@ -144,20 +143,18 @@ void Component::to_SpriteMap(simdjson::ondemand::object &obj, std::vector<util::
     _data = malloc(_size);
     SpriteMap_sc *comp = static_cast<SpriteMap_sc*>(_data);
 
-    std::string shader;
-    std::string texture;
-    std::string atlas;
+    std::string str;
     comp->layer = 0.f;
     comp->color = 4294967295u;
 
-    IS_SET_FIELD(SpriteMap_sc, shader, std::string_view, obj["shader"]);
-    SET_DYNAMIC_STRING(shader, comp, shader, dynamic_buffers);
+    IS_SET_FIELD(SpriteMap_sc, str, std::string_view, obj["shader"]);
+    SET_DYNAMIC_STRING(str, comp, shader, dynamic_buffers);
 
-    IS_SET_FIELD(SpriteMap_sc, texture, std::string_view, obj["texture"]);
-    SET_DYNAMIC_STRING(texture, comp, texture, dynamic_buffers);
+    IS_SET_FIELD(SpriteMap_sc, str, std::string_view, obj["texture"]);
+    SET_DYNAMIC_STRING(str, comp, texture, dynamic_buffers);
 
-    IS_SET_FIELD(SpriteMap_sc, atlas, std::string_view, obj["atlas"]);
-    SET_DYNAMIC_STRING(atlas, comp, atlas, dynamic_buffers);
+    IS_SET_FIELD(SpriteMap_sc, str, std::string_view, obj["atlas"]);
+    SET_DYNAMIC_STRING(str, comp, atlas, dynamic_buffers);
 
     util::set_in_var_json<double>(comp->layer, obj["layer"]);
 
@@ -175,7 +172,7 @@ void Component::to_SpriteMap(simdjson::ondemand::object &obj, std::vector<util::
         memcpy(&comp->color, rgba, sizeof(uint32_t));
     }
 
-    simdjson::ondemand::array types ,cells;
+    simdjson::ondemand::array types, cells;
 
     IS_SET_FIELD(SpriteMap_sc, types, simdjson::ondemand::array, obj["cell_types"]);
     SET_DYNAMIC_ARRAY(types, uint32_t, uint64_t, comp, cell_types, dynamic_buffers);
@@ -198,6 +195,40 @@ void Component::to_MapAnimator(simdjson::ondemand::object &obj, std::vector<util
     
     IS_SET_FIELD(MapAnimator_sc, durations, simdjson::ondemand::array, obj["durations"]);
     SET_DYNAMIC_ARRAY(durations, float, double, comp, durations, dynamic_buffers);
+}
+
+void Component::to_Label(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)
+{
+#include "comp_struct/Label.struct"
+    _size = sizeof(Label_sc);
+    _data = malloc(_size);
+    Label_sc *comp = static_cast<Label_sc*>(_data);
+
+    std::string str;
+    comp->layer = 0.f;
+    comp->color = 0xFF000000;
+
+    IS_SET_FIELD(Label_sc, str, std::string_view, obj["shader"]);
+    SET_DYNAMIC_STRING(str, comp, shader, dynamic_buffers);
+
+    IS_SET_FIELD(Label_sc, str, std::string_view, obj["text"]);
+    SET_DYNAMIC_STRING(str, comp, text, dynamic_buffers);
+
+    util::set_in_var_json<double>(comp->layer, obj["layer"]);
+
+    IS_SET_FIELD(Label_sc, comp->size_x, uint64_t, obj["size_x"]);
+    IS_SET_FIELD(Label_sc, comp->size_y, uint64_t, obj["size_y"]);
+
+    simdjson::ondemand::array color_array;
+    if(util::set_in_var_json<simdjson::ondemand::array>(color_array, obj["color"]))
+    {
+        uint8_t rgba[4];
+        uint8_t i = 0;
+        for(auto iter : color_array)
+            rgba[i++] = static_cast<uint8_t>(util::get_var_json<uint64_t>(iter));
+        
+        memcpy(&comp->color, rgba, sizeof(uint32_t));
+    }
 }
 
 void Component::to_SoundPlayer(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers)

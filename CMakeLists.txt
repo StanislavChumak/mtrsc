@@ -27,7 +27,6 @@ add_executable(${PROJECT_NAME}
     src/res/ResourcePack.cpp
     src/res/ResourceType.cpp
     src/res/Resource.cpp
-
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

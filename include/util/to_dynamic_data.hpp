@@ -2,6 +2,7 @@
 #define TO_DYNAMIC_DATA_HPP
 
 #include "util/from_json.hpp"
+#include "util/mtrsc_message.hpp"
 #include <string>
 
 namespace mtrs::util
@@ -16,7 +17,7 @@ struct DynamicBuffer
 
 #define IS_SET_FIELD(object, var, type_for_json, json_field) \
 if(!mtrs::util::set_in_var_json<type_for_json>(var, json_field)) \
-    std::cerr << "!= " << #object << " failed to get required field: " << #json_field << std::endl
+    mtrs::util::mtrsc_error(#object, " failed to get required field: ", #json_field);
 
 #define SET_DYNAMIC_STRING(string, ptr, field, dynamic_data) \
 dynamic_data.push_back(mtrs::util::string_to_dynamic_data(std::move(string), &ptr->field##_offset, ptr->field##_size))

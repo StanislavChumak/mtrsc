@@ -18,6 +18,7 @@ bool ResourcePack::from_json(simdjson::ondemand::object &pack_json, std::string 
         ResourceType type;
         if(!type.from_json(array, key, _dynamic_buffers))
         {
+            util::mtrsc_error("In ResourcePack \"", name, '\"');
             continue;
         }
         _size += type.size();

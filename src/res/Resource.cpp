@@ -21,7 +21,8 @@ bool Resource::from_json(simdjson::ondemand::object &obj,
 
     if(_id == 0)
     {
-        std::cerr << "!= Resource of type \"" << res_name << "\" has no name =!" << std::endl;
+        util::mtrsc_error("Resource of type \"", res_name, "\" has no name");
+        return false;
     }
 
     return true;
