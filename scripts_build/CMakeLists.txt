@@ -9,7 +9,7 @@ add_subdirectory(${EXTERNAL_INCLUDE_DIR}/glm glm)
 
 function(add_script_module name source dest)
     add_library(${name} MODULE ${source})
-    target_include_directories(${name} PRIVATE ${EXTERNAL_INCLUDE_DIR}/mtrsstruct ${EXTERNAL_INCLUDE_DIR}/single-files ${ENGINE_DIR}/include)
+    target_include_directories(${name} PUBLIC ${EXTERNAL_INCLUDE_DIR}/utils/include ${EXTERNAL_INCLUDE_DIR}/single-files ${ENGINE_DIR}/include)
     target_link_libraries(${name} PRIVATE glm)
     set_target_properties(${name} PROPERTIES
         PREFIX ""

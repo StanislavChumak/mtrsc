@@ -150,6 +150,7 @@ int main(int argc, char **argv)
             << " \"" << s.source_path.generic_string() << "\""
             << " \"" << s.dest_dir.generic_string() << "\")\n";
     }
+    out.close();
 
     fs::path build_output = "scripts_build/_cmake_build";
 
@@ -164,7 +165,7 @@ int main(int argc, char **argv)
     if (std::system(configure_cmd.str().c_str()) != 0)
     {
         mtrs::msg::mtrs_error("CMake configure failed for scripts");
-        return 0;
+        return 1;
     }
 
     std::ostringstream build_cmd;
@@ -175,7 +176,7 @@ int main(int argc, char **argv)
     if (std::system(build_cmd.str().c_str()) != 0)
     {
         mtrs::msg::mtrs_error("CMake build failed for scripts");
-        return 0;
+        return 1;
     }
 
     return 0;
