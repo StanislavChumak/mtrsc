@@ -3,11 +3,11 @@
 
 #include "simdjson.h"
 
-#include "res_struct/res_type.def"
+#include "util/type/prs/res/res_types.hpp"
 
-namespace mtrs::util
+namespace mtrs::prs
 {
-    struct DynamicBuffer;
+    struct DeferredData;
 }
 
 namespace mtrs::res
@@ -15,30 +15,31 @@ namespace mtrs::res
 
 class Resource
 {
-    uint64_t _id = 0;
+    std::string _name = "";
+    bool _is_init = true;
+
     void *_data = nullptr;
-    
     uint32_t _size = 0;
 
+#define X(res) std::vector<prs::DeferredData> to_##res(simdjson::ondemand::object &obj);
+    RESOURCE_TYPES
+#undef X
+
 public:
-    Resource() = default;
+    Resource() = delete;
     Resource(Resource &) = delete;
     Resource &operator=(const Resource &) = delete;
     Resource(Resource &&other) noexcept;
     Resource &operator=(Resource &&other) noexcept;
     ~Resource();
+
+    Resource(simdjson::ondemand::object &obj, const std::string &type_name,
+        uint64_t type_id, std::vector<prs::DeferredData> &deferred_data);
     
-    uint32_t size() { return _size + sizeof(_id); }
+    inline uint32_t size() { return _size + sizeof(uint64_t); }
+    inline bool is_init() { return _is_init; }
 
-    bool from_json(
-        simdjson::ondemand::object &obj,
-        std::string &resource, 
-        std::vector<util::DynamicBuffer> &dynamic_buffer);
-    bool to_file_mtscn(std::ofstream &file);
-
-#define X(res) void to_##res(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffer);
-    RESOURCE_TYPE
-#undef X
+    bool to_file_mtscn(std::ofstream &file, size_t msg_offset);
 };
 
 }

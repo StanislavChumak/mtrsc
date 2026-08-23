@@ -1,6 +1,6 @@
 [submodule "external/simdjson"]
 	path = external/simdjson
 	url = https://github.com/simdjson/simdjson
-[submodule "external/mtrsstruct"]
-	path = external/mtrsstruct
-	url = https://github.com/StanislavChumak/mtrsstruct
+[submodule "external/utils"]
+	path = external/utils
+	url = https://github.com/StanislavChumak/mtrsutils.git

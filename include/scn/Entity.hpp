@@ -8,27 +8,27 @@ namespace mtrs::comp
 
 class Entity
 {
-    uint64_t _id;
-    uint32_t _size = sizeof(_id) * 2;
+    std::string _name = "";
+    bool _is_init = true;
+
+    uint32_t _size = sizeof(uint64_t) * 2;
     std::vector<Component> _components;
 
-    std::string _name = "";
-    
 public:
-    Entity() = default;
+    Entity() = delete;
     Entity(Entity &) = delete;
     Entity &operator=(const Entity &) = delete;
     Entity(Entity &&other) noexcept;
     Entity &operator=(Entity &&other) noexcept;
     ~Entity() = default;
+    
+    Entity(simdjson::ondemand::object &obj, std::string scene_name,
+        std::vector<prs::DeferredData> &deferred_data);
 
-    uint32_t size() { return _size; }
+    inline uint32_t size() { return _size; }
+    inline bool is_init() { return _is_init; }
 
-    bool from_json(
-        simdjson::ondemand::object &obj,
-        std::string scene_name,
-        std::vector<util::DynamicBuffer> &dynamic_buffers);
-    bool to_file_mtscn(std::ofstream &file);
+    bool to_file_mtscn(std::ofstream &file, size_t msg_offset);
 };
 
 }

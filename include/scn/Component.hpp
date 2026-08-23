@@ -1,13 +1,13 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef COMPONENT_HPP
+#define COMPONENT_HPP
 
 #include "simdjson.h"
 
-#include "comp_struct/comp_type.def"
+#include "util/type/prs/comp/comp_types.hpp"
 
-namespace mtrs::util
+namespace mtrs::prs
 {
-    struct DynamicBuffer;
+    struct DeferredData;
 }
 
 namespace mtrs::comp
@@ -15,31 +15,31 @@ namespace mtrs::comp
 
 class Component
 {
-    uint64_t _id = 0;
+    std::string _name;
+    bool _is_init = true;
+
     uint32_t _size = 0;
     void *_data = nullptr;
 
-    std::string _name;
-    
+#define X(Comp) std::vector<prs::DeferredData> to_##Comp(simdjson::ondemand::object &obj);
+    COMPONENT_TYPES
+#undef X
+
 public:
-    Component() = default;
+    Component() = delete;
     Component(Component &) = delete;
     Component &operator=(const Component &) = delete;
     Component(Component &&other) noexcept;
     Component &operator=(Component &&other) noexcept;
     ~Component();
-    
-    uint32_t size() { return _size + sizeof(_id); }
 
-    bool from_json(
-        simdjson::ondemand::object &obj,
-        const std::string &name,
-        std::vector<util::DynamicBuffer> &dynamic_buffers);
-    bool to_file_mtscn(std::ofstream &file);
+    Component(simdjson::ondemand::object &obj, const std::string &name,
+        std::vector<prs::DeferredData> &dederred_data);
 
-#define X(Comp) void to_##Comp(simdjson::ondemand::object &obj, std::vector<util::DynamicBuffer> &dynamic_buffers);
-    COMPONENT_TYPE
-#undef X
+    inline bool is_init() noexcept { return _is_init; };
+    inline uint32_t size() { return _size + sizeof(uint64_t); }
+
+    bool to_file_mtscn(std::ofstream &file, size_t msg_offset);
 };
 
 }

@@ -1,92 +1,103 @@
 #include "res/ResourcePack.hpp"
 
-#include "util/from_json.hpp"
-#include "util/hash.hpp"
-#include "util/mtrsc_message.hpp"
+#include "util/fun/prs/json.hpp"
+#include "util/fun/math/hash.hpp"
+#include "util/fun/msg/mtrs_file_message.hpp"
 
 #include <fstream>
 
 namespace mtrs::res
 {
 
-bool ResourcePack::from_json(simdjson::ondemand::object &pack_json, std::string name)
+ResourcePack::ResourcePack(simdjson::ondemand::object &pack_json, std::string name)
 {
-    for(auto res : pack_json)
+    for(auto group_json : pack_json)
     {
-        std::string key = std::string(util::get_result_json<std::string_view>(res.unescaped_key()));
-        auto array = util::get_var_json<simdjson::ondemand::array>(res.value());
-        ResourceType type;
-        if(!type.from_json(array, key, _dynamic_buffers))
+        auto type = prs::get_result_json<std::string_view>(group_json.unescaped_key());
+        auto array = prs::get_value_json<simdjson::ondemand::array>(group_json.value());
+        ResourceGroup group{array, (std::string)type, _deferred_data};
+        if(!group.is_init())
         {
-            util::mtrsc_error("In ResourcePack \"", name, '\"');
+            msg::mtrs_error("In ResourcePack \"", name, '\"');
             continue;
         }
-        _size += type.size();
-        _resource_types.push_back(std::move(type));
+        _size += group.size();
+        _groups.push_back(std::move(group));
     }
 
-    if(_resource_types.empty())
+    if(_groups.empty())
     {
-        util::mtrsc_error("The ResourcePack \"", name, "\" is empty =!");
-        return false;
+        msg::mtrs_error("The ResourcePack \"", name, "\" is empty =!");
+        _is_init = false;
     }
 
-    _dynamic_data_size = _size;
-    for(auto dynamic : _dynamic_buffers)
+    _deferred_data_size = _size;
+    for(auto ddata : _deferred_data)
     {
-        *dynamic.p_offset = _dynamic_data_size;
-        _dynamic_data_size += dynamic.size;
+        *ddata.offset = _deferred_data_size;
+        _deferred_data_size += ddata.size;
     }
-    _dynamic_data_size -= _size;
-
-    return true;
+    _deferred_data_size -= _size;
 }
 
 bool ResourcePack::to_file_mtrs(std::ofstream &file)
 {
     if(!file) return false;
 
-    uint64_t file_size = _size + _dynamic_data_size;
-    util::variable_message(0, "file_size", file_size);
+    uint64_t file_size = _size + _deferred_data_size;
+    msg::variable_message(0, "file_size", file_size);
 
     // Header
     file.write(_magic, sizeof(_magic));
-    util::parameter_message(0, "header", _magic, 8, file.tellp());
+    msg::parameter_message(0, "header", _magic, 8, file.tellp());
 
     // Resources
-    util::variable_message(0, "resource_types", _resource_types.size());
+    msg::variable_message(0, "resource_groups", _groups.size());
 
-    for(auto &res_type : _resource_types)
+    for(auto &group : _groups)
     {
-        res_type.to_file_mtscn(file);
+        group.to_file_mtscn(file, 2);
     }
 
-    // Dynamic Data Block
-    util::variable_message(0, "dynamic_data_block", _dynamic_data_size);
+    // Deferred Data Block
+    msg::variable_message(0, "deferred_data_block", _deferred_data_size);
 
-    for(auto dynamic : _dynamic_buffers)
+    for(auto &ddata : _deferred_data)
     {
-        file.write(dynamic.data, dynamic.size);
-        util::parameter_message(2, "data", dynamic.size, dynamic.size, file.tellp());
+        file.write(ddata.data, ddata.size);
+        msg::parameter_message(2, "data", ddata.size, ddata.size, file.tellp());
+        delete ddata.data;
     }
 
-    util::verification_message("end_file", file_size, (uint64_t)file.tellp());
+    msg::verification_message("end_file", file_size, (uint64_t)file.tellp());
 
     return true;
 }
 
 ResourcePack::ResourcePack(ResourcePack &&other) noexcept
 {
-    _resource_types = std::move(other._resource_types);
-    _dynamic_buffers = std::move(other._dynamic_buffers);
+    _is_init = other._is_init;
+    _is_init = false;
+    _size = other._size;
+    other._size = 0;
+    _deferred_data_size = other._deferred_data_size;
+    other._deferred_data_size = 0;
+    _groups = std::move(other._groups);
+    _deferred_data = std::move(other._deferred_data);
 }
 
 ResourcePack &ResourcePack::operator=(ResourcePack &&other) noexcept
 {
     if(this != &other)
     {
-        _resource_types = std::move(other._resource_types);
-        _dynamic_buffers = std::move(other._dynamic_buffers);
+        _is_init = other._is_init;
+        _is_init = false;
+        _size = other._size;
+        other._size = 0;
+        _deferred_data_size = other._deferred_data_size;
+        other._deferred_data_size = 0;
+        _groups = std::move(other._groups);
+        _deferred_data = std::move(other._deferred_data);
     }
     return *this;
 }

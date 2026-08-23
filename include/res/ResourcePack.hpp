@@ -1,8 +1,8 @@
 #ifndef RESOURCE_PACK_HPP
 #define RESOURCE_PACK_HPP
 
-#include "ResourceType.hpp"
-#include "util/to_dynamic_data.hpp"
+#include "ResourceGroup.hpp"
+#include "util/type/prs/DeferredData.hpp"
 
 #define HEADER_PACK_SIZE 8
 
@@ -13,11 +13,13 @@ class ResourcePack
 {
     const char _magic[8] = "mtrspck";
 
-    std::vector<ResourceType> _resource_types;
-    std::vector<util::DynamicBuffer> _dynamic_buffers;
+    std::vector<ResourceGroup> _groups;
+    std::vector<prs::DeferredData> _deferred_data;
     
     uint _size = 8;
-    uint64_t _dynamic_data_size = 0;
+    uint64_t _deferred_data_size = 0;
+
+    bool _is_init = true;
 
 public:
     ResourcePack() = default;
@@ -27,7 +29,10 @@ public:
     ResourcePack &operator=(ResourcePack &&other) noexcept;
     ~ResourcePack() = default;
 
-    bool from_json(simdjson::ondemand::object &jsonRes, std::string name);
+    ResourcePack(simdjson::ondemand::object &pack_json, std::string name);
+
+    inline bool is_init() { return _is_init; }
+
     bool to_file_mtrs(std::ofstream &file);
 };
 

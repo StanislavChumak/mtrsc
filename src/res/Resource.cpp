@@ -1,47 +1,55 @@
-#include "from_to_res.cpp"
+#include "res/Resource.hpp"
+
+#include "util/type/prs/DeferredData.hpp"
+
+#include "util/fun/math/hash.hpp"
+#include "util/fun/msg/mtrs_file_message.hpp"
 
 #include <fstream>
 
 namespace mtrs::res
 {
 
-bool Resource::from_json(simdjson::ondemand::object &obj,
-    std::string &res_name, std::vector<util::DynamicBuffer> &dynamic_buffers)
+Resource::Resource(simdjson::ondemand::object &obj, const std::string &type_name,
+    uint64_t type_id, std::vector<prs::DeferredData> &deferred_data)
 {
-    uint64_t hash = util::hash_string<uint64_t>(res_name);
-    switch (hash)
+    std::vector<prs::DeferredData> ddata;
+    switch (type_id)
     {
-#define X(res) case util::hash_c_string<u_int64_t>(#res):to_##res(obj, dynamic_buffers); break;
-    RESOURCE_TYPE
+#define X(res) case math::hash64(#res): ddata = to_##res(obj); break;
+    RESOURCE_TYPES
 #undef X
     default:
-        util::mtrsc_error("There is no such resource as \"", res_name, '\"');
-        return false;
+        msg::mtrs_error("There is no such resource as \"", type_name, '\"');
+        _is_init = false;
     }
+    deferred_data.insert(deferred_data.end(), ddata.begin(), ddata.end());
 
-    if(_id == 0)
+    if(_name == "")
     {
-        util::mtrsc_error("Resource of type \"", res_name, "\" has no name");
-        return false;
+        msg::mtrs_error("Resource of type \"", type_name, "\" has no name");
+        _is_init = false;
     }
-
-    return true;
 }
 
-bool Resource::to_file_mtscn(std::ofstream &file)
+bool Resource::to_file_mtscn(std::ofstream &file, size_t msg_offset)
 {
-    LOG_WRITE(file, 4, _id, "res_id");
+    uint64_t id = math::hash64(_name);
+    file.write(reinterpret_cast<char*>(&id), sizeof(id));
+    msg::parameter_message(msg_offset, _name, id, sizeof(id), file.tellp());
+    msg_offset += 2;
 
     file.write(reinterpret_cast<char*>(_data), _size);
-    util::parameter_message(6, "res_data", _size, _size, file.tellp());
+    msg::parameter_message(msg_offset, "data", _size, _size, file.tellp());
 
     return true;
 }
 
 Resource::Resource(Resource &&other) noexcept
 {
-    _id = other._id;
-    other._id = 0;
+    _name = std::move(other._name);
+    _is_init = other._is_init;
+    other._is_init = false;
     _size = other._size;
     other._size = 0;
     _data = other._data;
@@ -52,8 +60,9 @@ Resource &Resource::operator=(Resource &&other) noexcept
 {
     if(this != &other)
     {
-        _id = other._id;
-        other._id = 0;
+        _name = std::move(other._name);
+        _is_init = other._is_init;
+        other._is_init = false;
         _size = other._size;
         other._size = 0;
         _data = other._data;
