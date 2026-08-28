@@ -78,6 +78,8 @@ std::vector<prs::DeferredData> Component::to_Sprite(simdjson::ondemand::object &
     prs::set_json_to_array<uint64_t>(color, obj, "color", {0xFFu,0xFFu,0xFFu,0xFFu});
     std::memcpy(&comp->color, color.data(), sizeof(uint32_t));
 
+    comp->visibility = true;
+
     return {
         prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
         prs::DeferredData{std::move(texture), DEFERRED_ARGS(*comp, texture)},
@@ -94,6 +96,9 @@ std::vector<prs::DeferredData> Component::to_Animator(simdjson::ondemand::object
     std::vector<float> durations;
 
     prs::set_json_to_array<double>(durations, obj, "durations");
+
+    comp->frame_offset = 0;
+    comp->count_frame = durations.size();
 
     return { prs::DeferredData{std::move(durations), DEFERRED_ARGS(*comp, durations)} };
 }
@@ -151,6 +156,8 @@ std::vector<prs::DeferredData> Component::to_SpriteMap(simdjson::ondemand::objec
     prs::set_json_to_array<uint64_t>(types, obj, "cell_types");
     prs::set_json_to_array_of_array<uint64_t>(cells, obj, "cells");
 
+    comp->visibility = true;
+
     return {
         prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
         prs::DeferredData{std::move(texture), DEFERRED_ARGS(*comp, texture)},
@@ -167,14 +174,14 @@ std::vector<prs::DeferredData> Component::to_MapAnimator(simdjson::ondemand::obj
     prs::MapAnimator *comp = static_cast<prs::MapAnimator*>(_data);
 
     std::vector<float> durations;
-    std::vector<std::array<uint32_t, 2>> ranges;
+    std::vector<std::array<uint32_t, 2>> cell_animators;
 
     prs::set_json_to_array<double>(durations, obj, "durations");
-    prs::set_json_to_array_of_array<uint64_t>(ranges, obj, "ranges");
+    prs::set_json_to_array_of_array<uint64_t>(cell_animators, obj, "cell_animators");
     
     return {
         prs::DeferredData{std::move(durations), DEFERRED_ARGS(*comp, durations)},
-        prs::DeferredData{std::move(ranges), DEFERRED_ARGS(*comp, ranges)}
+        prs::DeferredData{std::move(cell_animators), DEFERRED_ARGS(*comp, cell_animators)}
     };
 }
 
@@ -195,8 +202,10 @@ std::vector<prs::DeferredData> Component::to_Label(simdjson::ondemand::object &o
     prs::set_json_to_var<uint64_t>(comp->size_x, obj, "size_x");
     prs::set_json_to_var<uint64_t>(comp->size_y, obj, "size_y");
 
-    prs::set_json_to_array<uint64_t>(color, obj, "color", {0xFFu,0xFFu,0xFFu,0xFFu});
+    prs::set_json_to_array<uint64_t>(color, obj, "color", {0x0,0x0,0x0,0xFFu});
     std::memcpy(&comp->color, color.data(), sizeof(uint32_t));
+
+    comp->visibility = true;
 
     return {
         prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
