@@ -25,7 +25,8 @@ Component::Component(simdjson::ondemand::object &obj, const std::string &name,
         _is_init = false;
         break;
     }
-    deferred_data.insert(deferred_data.end(), ddata.begin(), ddata.end());
+    deferred_data.insert(deferred_data.end(),
+        std::make_move_iterator(ddata.begin()), std::make_move_iterator(ddata.end()));
 
     if(_size == 0)
     {

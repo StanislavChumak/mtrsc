@@ -9,7 +9,8 @@
 namespace mtrs::res
 {
 
-ResourcePack::ResourcePack(simdjson::ondemand::object &pack_json, std::string name)
+ResourcePack::ResourcePack(simdjson::ondemand::object &pack_json, uint64_t cache_lifetime, std::string name)
+: _cache_lifetime(cache_lifetime)
 {
     for(auto group_json : pack_json)
     {
@@ -32,10 +33,10 @@ ResourcePack::ResourcePack(simdjson::ondemand::object &pack_json, std::string na
     }
 
     _deferred_data_size = _size;
-    for(auto ddata : _deferred_data)
+    for(auto &ddata : _deferred_data)
     {
-        *ddata.offset = _deferred_data_size;
-        _deferred_data_size += ddata.size;
+        ddata.field[0] = _deferred_data_size;
+        _deferred_data_size += ddata.field[1];
     }
     _deferred_data_size -= _size;
 }
@@ -64,9 +65,8 @@ bool ResourcePack::to_file_mtrs(std::ofstream &file)
 
     for(auto &ddata : _deferred_data)
     {
-        file.write(ddata.data, ddata.size);
-        msg::parameter_message(2, "data", ddata.size, ddata.size, file.tellp());
-        delete ddata.data;
+        file.write(ddata.data, ddata.field[1]);
+        msg::parameter_message(2, "data", ddata.field[1], ddata.field[1], file.tellp());
     }
 
     msg::verification_message("end_file", file_size, (uint64_t)file.tellp());
@@ -78,6 +78,8 @@ ResourcePack::ResourcePack(ResourcePack &&other) noexcept
 {
     _is_init = other._is_init;
     _is_init = false;
+    _cache_lifetime = other._cache_lifetime;
+    other._cache_lifetime = 0;
     _size = other._size;
     other._size = 0;
     _deferred_data_size = other._deferred_data_size;
@@ -92,6 +94,8 @@ ResourcePack &ResourcePack::operator=(ResourcePack &&other) noexcept
     {
         _is_init = other._is_init;
         _is_init = false;
+        _cache_lifetime = other._cache_lifetime;
+        other._cache_lifetime = 0;
         _size = other._size;
         other._size = 0;
         _deferred_data_size = other._deferred_data_size;

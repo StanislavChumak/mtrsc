@@ -23,7 +23,8 @@ Resource::Resource(simdjson::ondemand::object &obj, const std::string &type_name
         msg::mtrs_error("There is no such resource as \"", type_name, '\"');
         _is_init = false;
     }
-    deferred_data.insert(deferred_data.end(), ddata.begin(), ddata.end());
+    deferred_data.insert(deferred_data.end(),
+        std::make_move_iterator(ddata.begin()), std::make_move_iterator(ddata.end()));
 
     if(_name == "")
     {

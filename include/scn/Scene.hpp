@@ -4,8 +4,7 @@
 #include "Entity.hpp"
 #include "util/type/prs/DeferredData.hpp"
 
-#define HEADER_SCENE_SIZE 24
-#define EDIT_RANGE_SIZE sizeof(uint16_t) * 2 * 32
+#define HEADER_SCENE_SIZE 28
 
 namespace mtrs::comp
 {
@@ -13,10 +12,10 @@ namespace mtrs::comp
 class Scene
 {
     const char _magic[8] = "mtrsscn";
+    uint64_t _cache_lifetime = 0;
 
     uint32_t _entity_count = 0;
     uint32_t _entity_offset = HEADER_SCENE_SIZE;
-    uint32_t _edit_range_offset = 0;
     uint32_t _ddata_offset = 0;
 
     std::vector<Entity> _entities;
@@ -35,7 +34,7 @@ public:
     Scene &operator=(Scene &&other) noexcept;
     ~Scene() = default;
 
-    Scene(simdjson::ondemand::array &json_scen, std::string name);
+    Scene(simdjson::ondemand::array &json_scen, uint64_t cache_lifetime, std::string name);
 
     inline bool is_init() { return _is_init; }
     

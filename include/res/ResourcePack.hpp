@@ -4,7 +4,7 @@
 #include "ResourceGroup.hpp"
 #include "util/type/prs/DeferredData.hpp"
 
-#define HEADER_PACK_SIZE 8
+#define HEADER_PACK_SIZE 16
 
 namespace mtrs::res
 {
@@ -12,6 +12,7 @@ namespace mtrs::res
 class ResourcePack
 {
     const char _magic[8] = "mtrspck";
+    uint64_t _cache_lifetime = 0;
 
     std::vector<ResourceGroup> _groups;
     std::vector<prs::DeferredData> _deferred_data;
@@ -29,7 +30,7 @@ public:
     ResourcePack &operator=(ResourcePack &&other) noexcept;
     ~ResourcePack() = default;
 
-    ResourcePack(simdjson::ondemand::object &pack_json, std::string name);
+    ResourcePack(simdjson::ondemand::object &pack_json, uint64_t cache_lifetime, std::string name);
 
     inline bool is_init() { return _is_init; }
 

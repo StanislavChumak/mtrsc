@@ -7,9 +7,10 @@
 #include <filesystem>
 #include <fstream>
 
-bool json_to_scene(simdjson::ondemand::array &json_scene, const std::string &desp_file_name)
+bool json_to_scene(simdjson::ondemand::array &json_scene, uint64_t cache_lifetime,
+    const std::string &desp_file_name)
 {
-    mtrs::comp::Scene scene{json_scene, desp_file_name};
+    mtrs::comp::Scene scene{json_scene, cache_lifetime, desp_file_name};
     if(!scene.is_init()) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);
@@ -25,9 +26,10 @@ bool json_to_scene(simdjson::ondemand::array &json_scene, const std::string &des
     return true;
 }
 
-bool json_to_pack(simdjson::ondemand::object &json_pack, const std::string &desp_file_name)
+bool json_to_pack(simdjson::ondemand::object &json_pack, uint64_t cache_lifetime,
+    const std::string &desp_file_name)
 {
-    mtrs::res::ResourcePack pack{json_pack, desp_file_name};
+    mtrs::res::ResourcePack pack{json_pack, cache_lifetime, desp_file_name};
     if(!pack.is_init()) return false;
 
     std::ofstream output_file(desp_file_name, std::ios::binary);
@@ -50,16 +52,22 @@ void json_to_mtrsfile(std::string json_path, const std::string &desp_file_name)
     simdjson::padded_string json{str.data(), str.length()};
     simdjson::ondemand::parser parser;
     simdjson::ondemand::document doc = parser.iterate(json);
+
+    uint64_t cache_lifetime;
     
+    mtrs::prs::set_json_to_var<uint64_t>(cache_lifetime, doc, "pclt", 10000);
     auto json_pack = doc["pack"].get_object();
     if(!json_pack.error())
     {
-        json_to_pack(json_pack.value(), desp_file_name.substr(0, desp_file_name.size() - 5) + ".mtpck");
+        json_to_pack(json_pack.value(), cache_lifetime,
+            desp_file_name.substr(0, desp_file_name.size() - 5) + ".mtpck");
     }
+    mtrs::prs::set_json_to_var<uint64_t>(cache_lifetime, doc, "sclt", 10000);
     auto json_scene = doc["scene"].get_array();
     if(!json_scene.error())
     {
-        json_to_scene(json_scene.value(), desp_file_name.substr(0, desp_file_name.size() - 5) + ".mtscn");
+        json_to_scene(json_scene.value(), cache_lifetime,
+            desp_file_name.substr(0, desp_file_name.size() - 5) + ".mtscn");
     }
 }
 

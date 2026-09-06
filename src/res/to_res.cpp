@@ -5,7 +5,7 @@
 
 #include "util/type/prs/DeferredData.hpp"
 #include "util/type/prs/res/ScriptFile.hpp"
-#include "util/type/prs/res/Shader.hpp"
+#include "util/type/prs/res/ShaderProgram.hpp"
 #include "util/type/prs/res/Texture.hpp"
 #include "util/type/prs/res/TextureAtlas.hpp"
 #include "util/type/prs/res/Sound.hpp"
@@ -14,7 +14,7 @@
 namespace mtrs::res
 {
 
-std::vector<prs::DeferredData> Resource::to_scripts(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_ScriptFile(simdjson::ondemand::object &obj)
 {
     _size = sizeof(prs::ScriptFile);
     _data = malloc(_size);
@@ -25,14 +25,16 @@ std::vector<prs::DeferredData> Resource::to_scripts(simdjson::ondemand::object &
     prs::set_json_to_var<std::string_view>(_name, obj, "name");
     prs::set_json_to_var<std::string_view>(path, obj, "path");
 
-    return { prs::DeferredData{std::move(path), DEFERRED_ARGS(*res, path)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(path), res->path);
+    return out;
 }
 
-std::vector<prs::DeferredData> Resource::to_shaders(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_ShaderProgram(simdjson::ondemand::object &obj)
 {
-    _size = sizeof(prs::Shader);
+    _size = sizeof(prs::ShaderProgram);
     _data = malloc(_size);
-    prs::Shader *res = static_cast<prs::Shader*>(_data);
+    prs::ShaderProgram *res = static_cast<prs::ShaderProgram*>(_data);
 
     std::string vertex, fragment;
 
@@ -40,13 +42,13 @@ std::vector<prs::DeferredData> Resource::to_shaders(simdjson::ondemand::object &
     prs::set_json_to_var<std::string_view>(vertex, obj, "vertex");
     prs::set_json_to_var<std::string_view>(fragment, obj, "fragment");
 
-    return {
-        prs::DeferredData{std::move(vertex), DEFERRED_ARGS(*res, vertex)},
-        prs::DeferredData{std::move(fragment), DEFERRED_ARGS(*res, fragment)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(vertex), res->vertex);
+    out.emplace_back(std::move(fragment), res->fragment);
+    return out;
 }
 
-std::vector<prs::DeferredData> Resource::to_textures(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_Texture(simdjson::ondemand::object &obj)
 {
     _size = sizeof(prs::Texture);
     _data = malloc(_size);
@@ -58,10 +60,12 @@ std::vector<prs::DeferredData> Resource::to_textures(simdjson::ondemand::object 
     prs::set_json_to_var<std::string_view>(path, obj, "path");
     prs::set_json_to_var<uint64_t>(res->max_instances, obj, "max_instances", 1000);
 
-    return { prs::DeferredData{std::move(path), DEFERRED_ARGS(*res, path)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(path), res->path);
+    return out;
 }
 
-std::vector<prs::DeferredData> Resource::to_atlases(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_TextureAtlas(simdjson::ondemand::object &obj)
 {
     _size = sizeof(prs::TextureAtlas);
     _data = malloc(_size);
@@ -75,10 +79,12 @@ std::vector<prs::DeferredData> Resource::to_atlases(simdjson::ondemand::object &
     prs::set_json_to_var<uint64_t>(res->sub_height, obj, "sub_height");
     prs::set_json_to_var<bool>(res->spirality, obj, "spirality", false);
     
-    return { prs::DeferredData{std::move(texture), DEFERRED_ARGS(*res, texture)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(texture), res->texture);
+    return out;
 }
 
-std::vector<prs::DeferredData> Resource::to_sounds(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_Sound(simdjson::ondemand::object &obj)
 {
     _size = sizeof(prs::Sound);
     _data = malloc(_size);
@@ -100,11 +106,13 @@ std::vector<prs::DeferredData> Resource::to_sounds(simdjson::ondemand::object &o
     {
         res->flag |= (uint32_t)flags[i] << i;
     }
-
-    return { prs::DeferredData{std::move(path), DEFERRED_ARGS(*res, path)} };
+    
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(path), res->path);
+    return out;
 }
 
-std::vector<prs::DeferredData> Resource::to_fonts(simdjson::ondemand::object &obj)
+std::vector<prs::DeferredData> Resource::to_Font(simdjson::ondemand::object &obj)
 {
     _size = sizeof(prs::Font);
     _data = malloc(_size);
@@ -119,11 +127,11 @@ std::vector<prs::DeferredData> Resource::to_fonts(simdjson::ondemand::object &ob
     prs::set_json_to_array_of_array<uint64_t>(symbol_widths, obj, "symbol_widths");
     prs::set_json_to_var<uint64_t>(res->symbol_height, obj, "symbol_height");
 
-    return {
-        prs::DeferredData{std::move(texture), DEFERRED_ARGS(*res, texture)},
-        prs::DeferredData{std::move(symbols), DEFERRED_ARGS(*res, symbols)},
-        prs::DeferredData{std::move(symbol_widths), DEFERRED_ARGS(*res, symbol_widths)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(texture), res->texture);
+    out.emplace_back(std::move(symbols), res->symbols);
+    out.emplace_back(std::move(symbol_widths), res->symbol_widths);
+    return out;
 }
 
 }

@@ -6,6 +6,7 @@
 #include "util/type/prs/DeferredData.hpp"
 #include "util/type/prs/comp/ScriptUpdate.hpp"
 #include "util/type/prs/comp/ScriptCallback.hpp"
+#include "util/type/prs/comp/StoredData.hpp"
 #include "util/type/prs/comp/Transform.hpp"
 #include "util/type/prs/comp/Sprite.hpp"
 #include "util/type/prs/comp/Animator.hpp"
@@ -27,7 +28,9 @@ std::vector<prs::DeferredData> Component::to_ScriptUpdate(simdjson::ondemand::ob
     std::string script_file;
     prs::set_json_to_var<std::string_view>(script_file, obj, "script_file");
 
-    return { prs::DeferredData{std::move(script_file), DEFERRED_ARGS(*comp, script_file)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(script_file), comp->script_file);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_ScriptCallback(simdjson::ondemand::object &obj)
@@ -39,7 +42,20 @@ std::vector<prs::DeferredData> Component::to_ScriptCallback(simdjson::ondemand::
     std::string script_file;
     prs::set_json_to_var<std::string_view>(script_file, obj, "script_file");
 
-    return { prs::DeferredData{std::move(script_file), DEFERRED_ARGS(*comp, script_file)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(script_file), comp->script_file);
+    return out;
+}
+
+std::vector<prs::DeferredData> Component::to_StoredData(simdjson::ondemand::object &obj)
+{
+    _size = sizeof(prs::StoredData);
+    _data = malloc(_size);
+    prs::StoredData *comp = static_cast<prs::StoredData*>(_data);
+
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::vector<char>(), comp->data);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_Transform(simdjson::ondemand::object &obj)
@@ -54,7 +70,8 @@ std::vector<prs::DeferredData> Component::to_Transform(simdjson::ondemand::objec
     prs::set_json_to_var<double>(comp->scale_size_y, obj, "scale_size_y", 1.f);
     prs::set_json_to_var<double>(comp->rotation, obj, "rotation", 0.f);
 
-    return {};
+    std::vector<prs::DeferredData> out;
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_Sprite(simdjson::ondemand::object &obj)
@@ -80,11 +97,11 @@ std::vector<prs::DeferredData> Component::to_Sprite(simdjson::ondemand::object &
 
     comp->visibility = true;
 
-    return {
-        prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
-        prs::DeferredData{std::move(texture), DEFERRED_ARGS(*comp, texture)},
-        prs::DeferredData{std::move(atlas), DEFERRED_ARGS(*comp, atlas)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(shader), comp->shader);
+    out.emplace_back(std::move(texture), comp->texture);
+    out.emplace_back(std::move(atlas), comp->atlas);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_Animator(simdjson::ondemand::object &obj)
@@ -100,7 +117,9 @@ std::vector<prs::DeferredData> Component::to_Animator(simdjson::ondemand::object
     comp->frame_offset = 0;
     comp->count_frame = durations.size();
 
-    return { prs::DeferredData{std::move(durations), DEFERRED_ARGS(*comp, durations)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(durations), comp->durations);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_StateAnimator(simdjson::ondemand::object &obj)
@@ -127,7 +146,9 @@ std::vector<prs::DeferredData> Component::to_StateAnimator(simdjson::ondemand::o
         states.push_back(state);
     }
 
-    return { prs::DeferredData{std::move(states), DEFERRED_ARGS(*comp, states)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(states), comp->states);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_SpriteMap(simdjson::ondemand::object &obj)
@@ -158,13 +179,13 @@ std::vector<prs::DeferredData> Component::to_SpriteMap(simdjson::ondemand::objec
 
     comp->visibility = true;
 
-    return {
-        prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
-        prs::DeferredData{std::move(texture), DEFERRED_ARGS(*comp, texture)},
-        prs::DeferredData{std::move(atlas), DEFERRED_ARGS(*comp, atlas)},
-        prs::DeferredData{std::move(types), DEFERRED_ARGS(*comp, cell_types)},
-        prs::DeferredData{std::move(cells), DEFERRED_ARGS(*comp, cell_map)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(shader), comp->shader);
+    out.emplace_back(std::move(texture), comp->texture);
+    out.emplace_back(std::move(atlas), comp->atlas);
+    out.emplace_back(std::move(types), comp->cell_types);
+    out.emplace_back(std::move(cells), comp->cell_map);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_MapAnimator(simdjson::ondemand::object &obj)
@@ -179,10 +200,10 @@ std::vector<prs::DeferredData> Component::to_MapAnimator(simdjson::ondemand::obj
     prs::set_json_to_array<double>(durations, obj, "durations");
     prs::set_json_to_array_of_array<uint64_t>(cell_animators, obj, "cell_animators");
     
-    return {
-        prs::DeferredData{std::move(durations), DEFERRED_ARGS(*comp, durations)},
-        prs::DeferredData{std::move(cell_animators), DEFERRED_ARGS(*comp, cell_animators)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(durations), comp->durations);
+    out.emplace_back(std::move(cell_animators), comp->cell_animators);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_Label(simdjson::ondemand::object &obj)
@@ -207,10 +228,10 @@ std::vector<prs::DeferredData> Component::to_Label(simdjson::ondemand::object &o
 
     comp->visibility = true;
 
-    return {
-        prs::DeferredData{std::move(shader), DEFERRED_ARGS(*comp, shader)},
-        prs::DeferredData{std::move(text), DEFERRED_ARGS(*comp, text)}
-    };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(shader), comp->shader);
+    out.emplace_back(std::move(text), comp->text);
+    return out;
 }
 
 std::vector<prs::DeferredData> Component::to_SoundPlayer(simdjson::ondemand::object &obj)
@@ -224,7 +245,9 @@ std::vector<prs::DeferredData> Component::to_SoundPlayer(simdjson::ondemand::obj
     prs::set_json_to_var<std::string_view>(sound, obj, "sound");
     prs::set_json_to_var<double>(comp->volume, obj, "volume", 1.f);
 
-    return { prs::DeferredData{std::move(sound), DEFERRED_ARGS(*comp, sound)} };
+    std::vector<prs::DeferredData> out;
+    out.emplace_back(std::move(sound), comp->sound);
+    return out;
 }
 
 }
