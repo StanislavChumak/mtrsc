@@ -16,7 +16,7 @@ Resource::Resource(simdjson::ondemand::object &obj, const std::string &type_name
     std::vector<prs::DeferredData> ddata;
     switch (type_id)
     {
-#define X(res) case math::hash64(#res): ddata = to_##res(obj); break;
+#define X(res) case math::hash64_(#res): ddata = to_##res(obj); break;
     RESOURCE_TYPES
 #undef X
     default:

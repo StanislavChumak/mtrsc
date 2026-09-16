@@ -17,7 +17,7 @@ Component::Component(simdjson::ondemand::object &obj, const std::string &name,
     std::vector<prs::DeferredData> ddata;
     switch (math::hash64(_name))
     {
-#define X(comp) case math::hash64(#comp): ddata = to_##comp(obj);break;
+#define X(comp) case math::hash64_(#comp): ddata = to_##comp(obj);break;
         COMPONENT_TYPES
 #undef X
         default:
