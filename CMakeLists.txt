@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.13.0 FATAL_ERROR)
 project(MtrsCompiler)
 set(EXE_NAME "mtrsc")
 
+set(MTRSC_SCRIPTS_CONFIG "Debug" CACHE STRING
+    "Default scripts build type for mtrsc when MTRSC_SCRIPTS_CONFIG env is not set (Debug/Release/RelWithDebInfo/MinSizeRel)")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

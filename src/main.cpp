@@ -6,6 +6,9 @@
 
 #include <filesystem>
 #include <fstream>
+#include <cstdlib>
+
+#include <set>
 
 bool json_to_scene(simdjson::ondemand::array &json_scene, uint64_t cache_lifetime,
     const std::string &desp_file_name)
@@ -162,11 +165,21 @@ int main(int argc, char **argv)
 
     fs::path build_output = "scripts_build/_cmake_build";
 
+    const char *env_config = std::getenv("MTRSC_SCRIPTS_CONFIG");
+    std::string config = env_config ? env_config : "Debug";
+    const std::set<std::string> allowed_configs = {"Debug", "Release", "RelWithDebInfo", "MinSizeRel"};
+    if(allowed_configs.find(config) == allowed_configs.end())
+    {
+        mtrs::msg::mtrs_warning("Unknown MTRSC_SCRIPTS_CONFIG \"", config,
+            "\", falling back to Debug");
+        config = "Debug";
+    }
+
     std::ostringstream configure_cmd;
     configure_cmd << "cmake -S \"" << fs::current_path().string() << "/scripts_build\""
                   << " -B \"" << build_output.string() << "\""
 #if !defined(_WIN32)
-                  << " -DCMAKE_BUILD_TYPE=Release"
+                  << " -DCMAKE_BUILD_TYPE=" << config
 #endif
                   ;
 
@@ -178,7 +191,7 @@ int main(int argc, char **argv)
 
     std::ostringstream build_cmd;
     build_cmd << "cmake --build \"" << build_output.string() << "\""
-              << " --config Release"
+              << " --config " << config
               << " --parallel";
 
     if (std::system(build_cmd.str().c_str()) != 0)
