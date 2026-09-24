@@ -92,10 +92,10 @@ std::vector<prs::DeferredData> Component::to_Sprite(simdjson::ondemand::object &
     prs::set_json_to_var<uint64_t>(comp->size_x, obj, "size_x");
     prs::set_json_to_var<uint64_t>(comp->size_y, obj, "size_y");
 
+    prs::set_json_to_var<bool>(comp->visibility, obj, "visibility", true);
+
     prs::set_json_to_array<uint64_t>(color, obj, "color", {0xFFu,0xFFu,0xFFu,0xFFu});
     std::memcpy(&comp->color, color.data(), sizeof(uint32_t));
-
-    comp->visibility = true;
 
     std::vector<prs::DeferredData> out;
     out.emplace_back(std::move(shader), comp->shader);
@@ -160,7 +160,7 @@ std::vector<prs::DeferredData> Component::to_SpriteMap(simdjson::ondemand::objec
     std::string shader, texture, atlas;
     std::vector<uint8_t> color;
     std::vector<uint32_t> types;
-    std::vector<std::array<uint32_t, 3>> cells;
+    std::vector<std::array<int32_t, 3>> cells;
     
     prs::set_json_to_var<std::string_view>(shader, obj, "shader");
     prs::set_json_to_var<std::string_view>(texture, obj, "texture");
@@ -171,13 +171,13 @@ std::vector<prs::DeferredData> Component::to_SpriteMap(simdjson::ondemand::objec
     prs::set_json_to_var<uint64_t>(comp->cell_size_x, obj, "cell_size_x");
     prs::set_json_to_var<uint64_t>(comp->cell_size_y, obj, "cell_size_y");
 
+    prs::set_json_to_var<bool>(comp->visibility, obj, "visibility", true);
+
     prs::set_json_to_array<uint64_t>(color, obj, "color", {0xFFu,0xFFu,0xFFu,0xFFu});
     std::memcpy(&comp->color, color.data(), sizeof(uint32_t));
 
     prs::set_json_to_array<uint64_t>(types, obj, "cell_types");
-    prs::set_json_to_array_of_array<uint64_t>(cells, obj, "cells");
-
-    comp->visibility = true;
+    prs::set_json_to_array_of_array<int64_t>(cells, obj, "cells");
 
     std::vector<prs::DeferredData> out;
     out.emplace_back(std::move(shader), comp->shader);
@@ -223,11 +223,11 @@ std::vector<prs::DeferredData> Component::to_Label(simdjson::ondemand::object &o
     prs::set_json_to_var<uint64_t>(comp->size_x, obj, "size_x");
     prs::set_json_to_var<uint64_t>(comp->size_y, obj, "size_y");
 
+    prs::set_json_to_var<bool>(comp->visibility, obj, "visibility", true);
+
     prs::set_json_to_array<uint64_t>(color, obj, "color", {0x0,0x0,0x0,0xFFu});
     std::memcpy(&comp->color, color.data(), sizeof(uint32_t));
-
-    comp->visibility = true;
-
+    
     std::vector<prs::DeferredData> out;
     out.emplace_back(std::move(shader), comp->shader);
     out.emplace_back(std::move(text), comp->text);
